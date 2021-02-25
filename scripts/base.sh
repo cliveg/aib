@@ -121,10 +121,10 @@ curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.
 
 #sudo rpm -Uvh omi-1.1.0.ssl_100.x64.rpm dsc-1.1.1-294.ssl_100.x64.rpm
 
-#sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
-#sudo yum -y install python-pip
-#sudo yum install ansible -y
-#sudo ansible-playbook test.yml
+sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
+sudo yum -y install python-pip
+sudo yum install ansible -y
+sudo ansible-playbook test.yml
 
 # Start PowerShell
 # pwsh
