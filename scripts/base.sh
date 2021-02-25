@@ -81,7 +81,7 @@ cat >> /install/test.yml << EOF
       - { key: net.ipv4.conf.default.rp_filter, value: 2 }
       - { key: fs.aio-max-nr, value: 1048576 }
       - { key: net.ipv4.ip_local_port_range, value: 9000 65500 }
-- name: Create Groups
+  - name: Create Groups
     group:
       name: "{{ item.group }}"
       state: present
@@ -134,6 +134,6 @@ sudo yum install ansible -y
 sudo  ansible-playbook test.yml
 
 # Start PowerShell
-pwsh
+# pwsh
 
-install-module nx
+# install-module nx
