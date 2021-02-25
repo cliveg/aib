@@ -10,7 +10,7 @@ EOF
 cd /install
 
 cat >> /install/test.yml << EOF
-- name: Configure Users
+- name: Configure Server
   hosts: localhost
   become: yes
   vars_files:
@@ -102,12 +102,46 @@ cat >> /install/test.yml << EOF
       - { group: oinstall }
       - { group: dba }
       - { group: oper }
+  - name: Add Oracle User Limits
+    lineinfile: dest=/etc/security/limits.conf line='oracle {{ item.limit }} {{ item.type}} {{ item.value }}'
+    become_user: root
+    loop:
+      - { limit: 'soft', type: nofile, value: 4096 }
+      - { limit: 'hard', type: nofile, value: 65536 }
+      - { limit: 'soft', type: nproc, value: 2047 }
+      - { limit: 'hard', type: nproc, value: 16384 }
+      - { limit: 'soft', type: stack, value: 10240 }
+      - { limit: 'hard', type: stack, value: 32768 }
+      - { limit: 'soft', type: memlock, value: 60397978 }
+      - { limit: 'hard', type: memlock, value: 60397978 }
   - name: Create Base Directories
     file:
       state: directory
       path: /oracle/app
       owner: oracle
       group: oinstall
+  - name: Create Disable Transparent Huge Pages script
+    copy:
+      dest: ~/disable_trans_hugepages.sh
+      mode: 755
+      content: "
+        cat << EOF >> /etc/rc.local\n
+        if test -f /sys/kernel/mm/transparent_hugepage/enabled; then\n
+        \techo never > /sys/kernel/mm/transparent_hugepage/enabled\n
+        fi\n
+        if test -f /sys/kernel/mm/transparent_hugepage/defrag; then\n
+        \techo never > /sys/kernel/mm/transparent_hugepage/defrag\n
+        fi\n
+        EOF\n
+        if test -f /sys/kernel/mm/transparent_hugepage/enabled; then\n
+        \techo never > /sys/kernel/mm/transparent_hugepage/enabled\n
+        fi\n
+        if test -f /sys/kernel/mm/transparent_hugepage/defrag; then\n
+        \techo never > /sys/kernel/mm/transparent_hugepage/defrag\n
+        fi\n"
+  - name: Run Disable Transparent Hugepages script
+    shell: ~/disable_trans_hugepages.sh
+    become_user: root
 EOF
 
 # Register the Microsoft RedHat repository
