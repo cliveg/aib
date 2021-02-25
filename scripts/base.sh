@@ -78,6 +78,36 @@ cat >> /install/test.yml << EOF
   - name: Run Disable Transparent Hugepages script
     shell: ~/disable_trans_hugepages.sh
     become_user: root
+    
+  - name: set up swap
+    vars:
+      waagent:
+        ResourceDisk.Format: y                   # Format if unformatted
+        ResourceDisk.Filesystem: ext4            # Typically ext3 or ext4
+        ResourceDisk.MountPoint: /mnt/resource   #
+        ResourceDisk.EnableSwap: y               # Create and use swapfile
+        ResourceDisk.SwapSizeMB: 2048            # Size of the swapfile
+    sudo: yes
+    lineinfile: dest=/etc/waagent.conf line="{{ item.key }}={{ item.value }}"
+    with_dict: "{{ waagent }}"
+    tags:
+      - setup
+
+  - name: unmount device
+    mount: 
+      path: /mnt
+      state: unmounted
+    tags:
+      - setup
+
+  - name: restart agent
+    service:
+      name: walinuxagent
+      state: restarted
+    sudo: yes
+    tags:
+      - setup
+
 EOF
 
 # Register the Microsoft RedHat repository
