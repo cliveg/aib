@@ -87,7 +87,7 @@ cat >> /install/test.yml << EOF
         ResourceDisk.MountPoint: /mnt/resource   #
         ResourceDisk.EnableSwap: y               # Create and use swapfile
         ResourceDisk.SwapSizeMB: 2048            # Size of the swapfile
-    sudo: yes
+    become_user: root
     lineinfile: dest=/etc/waagent.conf line="{{ item.key }}={{ item.value }}"
     with_dict: "{{ waagent }}"
     tags:
@@ -104,35 +104,27 @@ cat >> /install/test.yml << EOF
     service:
       name: walinuxagent
       state: restarted
-    sudo: yes
+    become_user: root
     tags:
       - setup
-
 EOF
 
 # Register the Microsoft RedHat repository
 curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
-#sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc
-
-sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
-sudo yum install -y code
  
 # Install PowerShell
-sudo yum install -y powershell
-
-# Optional installation method
-# sudo yum install https://github.com/PowerShell/PowerShell/releases/download/v7.0.3/powershell-lts-7.0.3-1.rhel.7.x86_64.rpm
+#sudo yum install -y powershell
 
 # Install OMI
-sudo wget https://github.com/Microsoft/omi/releases/download/v1.1.0-0/omi-1.1.0.ssl_100.x64.rpm
-sudo wget https://github.com/Microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-294/dsc-1.1.1-294.ssl_100.x64.rpm
+#sudo wget https://github.com/Microsoft/omi/releases/download/v1.1.0-0/omi-1.1.0.ssl_100.x64.rpm
+#sudo wget https://github.com/Microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-294/dsc-1.1.1-294.ssl_100.x64.rpm
 
-sudo rpm -Uvh omi-1.1.0.ssl_100.x64.rpm dsc-1.1.1-294.ssl_100.x64.rpm
+#sudo rpm -Uvh omi-1.1.0.ssl_100.x64.rpm dsc-1.1.1-294.ssl_100.x64.rpm
 
-sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
-sudo yum -y install python-pip
-sudo yum install ansible -y
-sudo  ansible-playbook test.yml
+#sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
+#sudo yum -y install python-pip
+#sudo yum install ansible -y
+#sudo ansible-playbook test.yml
 
 # Start PowerShell
 # pwsh
