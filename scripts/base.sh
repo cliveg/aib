@@ -64,6 +64,50 @@ cat >> /install/test.yml << EOF
       - { pak: targetcli }
       - { pak: cloud-utils-growpart }
       - { pak: gdisk }
+  - name: Create U01 Logical Volume
+    lvol:
+      vg: rootvg
+      lv: u01lv
+      size: 10240
+  - name: Create a filesystem on lvm".
+    filesystem:
+      fstype: "xfs"
+      dev: "/dev/mapper/rootvg-u01lv"
+      force: no
+  - name: Create Base Directories
+    file:
+      path: "{{ item.directory }}"
+      state: directory
+      mode: '0755'
+      owner: oracle
+      group: oinstall
+    loop:
+      - { directory: '/u01' }
+      - { directory: '/u01/app/oraInventory' }
+      - { directory: '/u01/app/oracle/product/19.0.0/dbhome_1' }
+      - { directory: '/u02/oradata' }
+      - { directory: '/fra' }
+      - { directory: '/dump' }
+      - { directory: '/stage' }
+  - name: Mount the created filesystem.
+    mount:
+      path: "/u01"
+      src: "/dev/mapper/rootvg-u01lv"
+      fstype: "xfs"
+      opts: rw,nosuid,noexec
+      state: mounted
+  - name: Extend rootlv
+    lvol:
+      vg: rootvg
+      lv: rootlv
+      size: "10240"
+      force: yes
+  - name: Extend varlv
+    lvol:
+      vg: rootvg
+      lv: varlv
+      size: "10240"
+      force: yes
   - name: Disable SELinux
     selinux:
       state: disabled
@@ -127,13 +171,7 @@ cat >> /install/test.yml << EOF
       - { limit: 'soft', type: stack, value: 10240 }
       - { limit: 'hard', type: stack, value: 32768 }
       - { limit: 'soft', type: memlock, value: 60397978 }
-      - { limit: 'hard', type: memlock, value: 60397978 }
-  - name: Create Base Directories
-    file:
-      state: directory
-      path: /oracle/app
-      owner: oracle
-      group: oinstall
+      - { limit: 'hard', type: memlock, value: 60397978 }      
   - name: Create Disable Transparent Huge Pages script
     copy:
       dest: ~/disable_trans_hugepages.sh
@@ -169,14 +207,12 @@ cat >> /install/test.yml << EOF
     with_dict: "{{ waagent }}"
     tags:
       - setup
-
   - name: unmount device
     mount: 
       path: /mnt
       state: unmounted
     tags:
       - setup
-
   - name: restart agent
     service:
       name: waagent.service
