@@ -13,6 +13,8 @@ cat >> /install/test.yml << EOF
 - name: Configure Server
   hosts: localhost
   become: yes
+  vars:
+    local_hostname:  "{{ lookup('env','HOSTNAME') }}"  
   vars_files:
     - secrets.yml
   tasks:
@@ -226,7 +228,7 @@ cat >> /install/test.yml << EOF
     tags:
       - setup
   - name: set hostname
-    command: "nmcli general hostname $(cut -d \".\" -f 1-2 <<< $HOSTNAME).enbridge.com"
+    command: "nmcli general hostname {{ local_hostname }}.enbridge.com"
     become_user: root
   - name: set dnssearch
     command: "nmcli con mod \"System eth0\" ipv4.dns-search \"enbridge.com,egd.enbridge.com,cgc.enbridge.com,cnpl.enbridge.com,corp.enbridge.com\""
