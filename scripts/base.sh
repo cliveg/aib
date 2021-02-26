@@ -104,8 +104,13 @@ cat >> /install/test.yml << EOF
       group: oinstall
     loop:
       - { directory: '/u01' }
+      - { directory: '/u01/app' }
       - { directory: '/u01/app/oraInventory' }
+      - { directory: '/u01/app/oracle' }
+      - { directory: '/u01/app/oracle/product' }
+      - { directory: '/u01/app/oracle/product/19.0.0' }
       - { directory: '/u01/app/oracle/product/19.0.0/dbhome_1' }
+      - { directory: '/u02' }
       - { directory: '/u02/oradata' }
       - { directory: '/fra' }
       - { directory: '/dump' }
