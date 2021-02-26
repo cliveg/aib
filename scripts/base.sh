@@ -225,15 +225,7 @@ cat >> /install/test.yml << EOF
     become_user: root
     tags:
       - setup
-  - name: set hostname
-    command: "nmcli general hostname $(cut -d "." -f 1-2 <<< $HOSTNAME).enbridge.com"
-    become_user: root
-  - name: set dnssearch
-    command: "nmcli con mod "System eth0" ipv4.dns-search "enbridge.com,egd.enbridge.com,cgc.enbridge.com,cnpl.enbridge.com,corp.enbridge.com"
-    become_user: root
-  - name: restart network manager
-    command: "systemctl restart NetworkManager"
-    become_user: root
+
 EOF
 
 # Register the Microsoft RedHat repository
