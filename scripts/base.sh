@@ -31,8 +31,6 @@ cat >> /install/test.yml << EOF
       - { pak: mdadm}
       - { pak: binutils }
       - { pak: compat-libcap1 }
-      - { pak: compat-libstdc++-33-3.2.3-72.el7.i686 }
-      - { pak: compat-libstdc++-33-3.2.3-72.el7.x86_64 }
       - { pak: gcc }
       - { pak: gcc-c++ }
       - { pak: glibc.i686 }
@@ -64,7 +62,6 @@ cat >> /install/test.yml << EOF
       - { pak: libstdc++-devel }
       - { pak: nfs-utils }
       - { pak: targetcli }
-      - { pak: libnsl.x86_64 }
       - { pak: cloud-utils-growpart }
       - { pak: gdisk }
   - name: Disable SELinux
