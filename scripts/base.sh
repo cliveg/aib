@@ -64,6 +64,27 @@ cat >> /install/test.yml << EOF
       - { pak: targetcli }
       - { pak: cloud-utils-growpart }
       - { pak: gdisk }
+  - name: Create Groups
+    group:
+      name: "{{ item.group }}"
+      state: present
+    become_user: root
+    loop:
+      - { group: oinstall }
+      - { group: dba }
+      - { group: oper }
+  - name: Create Oracle User
+    user:
+      name: oracle
+      groups: "{{ item.group }}"
+      password: "{{ oraclepass }}"
+      state: present
+      append: yes
+    become_user: root
+    loop:
+      - { group: oinstall }
+      - { group: dba }
+      - { group: oper }
   - name: Create U01 Logical Volume
     lvol:
       vg: rootvg
@@ -139,27 +160,6 @@ cat >> /install/test.yml << EOF
       - { key: net.ipv4.conf.default.rp_filter, value: 2 }
       - { key: fs.aio-max-nr, value: 1048576 }
       - { key: net.ipv4.ip_local_port_range, value: 9000 65500 }    
-  - name: Create Groups
-    group:
-      name: "{{ item.group }}"
-      state: present
-    become_user: root
-    loop:
-      - { group: oinstall }
-      - { group: dba }
-      - { group: oper }
-  - name: Create Oracle User
-    user:
-      name: oracle
-      groups: "{{ item.group }}"
-      password: "{{ oraclepass }}"
-      state: present
-      append: yes
-    become_user: root
-    loop:
-      - { group: oinstall }
-      - { group: dba }
-      - { group: oper }
   - name: Add Oracle User Limits
     lineinfile: dest=/etc/security/limits.conf line='oracle {{ item.limit }} {{ item.type}} {{ item.value }}'
     become_user: root
