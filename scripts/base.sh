@@ -227,24 +227,6 @@ cat >> /install/test.yml << EOF
     become_user: root
     tags:
       - setup
-  - name: Download and Extract Oracle Software
-    unarchive:
-      src: /stage/LINUX.X64_193000_db_home.zip
-      dest: /u01/app/oracle/product/19.0.0/dbhome_1/
-      remote_src: False
-  - name: Remove Directory
-    command: "rm -rf /u01/app/oracle/product/19.0.0/dbhome_1/OPatch"
-    become_user: root
-  - name: Download and Extract Oracle OPatch
-    unarchive:
-      src: /stage/p6880880_121010_Linux-x86-64.zip
-      dest: /u01/app/oracle/product/19.0.0/dbhome_1/
-      remote_src: False
-  - name: Download and Extract Oracle Patch
-    unarchive:
-      src: /stage/p31326362_190000_Linux-x86-64.zip
-      dest: /u01/app/oracle/product/19.0.0/dbhome_1/
-      remote_src: False
 EOF
 
 # Register the Microsoft RedHat repository
@@ -258,12 +240,6 @@ curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.
 #sudo wget https://github.com/Microsoft/PowerShell-DSC-for-Linux/releases/download/v1.1.1-294/dsc-1.1.1-294.ssl_100.x64.rpm
 
 #sudo rpm -Uvh omi-1.1.0.ssl_100.x64.rpm dsc-1.1.1-294.ssl_100.x64.rpm
-
-# Install Oracle Prereqs
-cd /stage
-sudo yum localinstall -y /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm
-sudo yum localinstall -y /stage/compat-libcap1-1.10-7.el7.x86_64.rpm
-sudo yum localinstall -y /stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm
 
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
 sudo yum -y install python-pip
