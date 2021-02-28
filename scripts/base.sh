@@ -91,7 +91,7 @@ cat >> /install/test.yml << EOF
     lvol:
       vg: rootvg
       lv: u01lv
-      size: 10240
+      size: 20480
   - name: Create a filesystem on lvm".
     filesystem:
       fstype: "xfs"
