@@ -78,13 +78,13 @@ cat >> /install/rhel-oracle.yml << EOF
     lvol:
       vg: rootvg
       lv: rootlv
-      size: "10240"
+      size: "15240"
       force: yes
   - name: Extend varlv
     lvol:
       vg: rootvg
       lv: varlv
-      size: "10240"
+      size: "15240"
       force: yes
   - name: Disable SELinux
     selinux:
