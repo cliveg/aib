@@ -182,7 +182,7 @@ cat >> /install/rhel-oracle.yml << EOF
     get_url:
       url: "{{ item }}"
       http_agent: Internet Explorer 3.5 for UNIX
-      tmp_dest: /mnt
+      tmp_dest: "/{{ oracle_folder }}"
       dest: "/stage"
     with_items:
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
