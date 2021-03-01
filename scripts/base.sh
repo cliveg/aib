@@ -177,11 +177,6 @@ cat >> /install/rhel-oracle.yml << EOF
     become_user: root
     tags:
       - setup
-  - name: Download-db_home
-    become_user: root
-    command: "wget -P /stage/ https://clivegaib.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
-    args:
-      warn: no
   - name: Download-OraPatch
     become_user: root
     command: "wget -P /stage/ https://clivegaib.blob.core.windows.net/pub/oracle/19c/p31326362_190000_Linux-x86-64.zip"
