@@ -177,6 +177,12 @@ cat >> /install/rhel-oracle.yml << EOF
     become_user: root
     tags:
       - setup
+  - name: Download-db_home
+    become_user: root
+    command: "wget -P /stage/ https://clivegaib.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
+  - name: Download-OraPatch
+    become_user: root
+    command: "wget -P /stage/ https://clivegaib.blob.core.windows.net/pub/oracle/19c/p31326362_190000_Linux-x86-64.zip"
   - name: Download Install Files
     become_user: root
     get_url:
@@ -185,11 +191,9 @@ cat >> /install/rhel-oracle.yml << EOF
       tmp_dest: "/{{ oracle_folder }}"
       dest: "/stage"
     with_items:
-      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libcap1-1.10-7.el7.x86_64.rpm"
-      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p6880880_121010_Linux-x86-64.zip"  
   - name: Install packages
     yum:
