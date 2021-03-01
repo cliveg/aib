@@ -9,14 +9,12 @@ EOF
 
 cd /install
 
-cat >> /install/test.yml << EOF
+cat >> /install/rhel-oracle.yml << EOF
 - name: Configure Server
   hosts: localhost
   become: yes
-  vars:
-    local_hostname:  "{{ lookup('env','HOSTNAME') }}"  
   vars_files:
-    - secrets.yml
+    - vars.yml
   tasks:
   - name: Install packages
     yum:
@@ -244,7 +242,7 @@ curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
 sudo yum -y install python-pip
 sudo yum install ansible -y
-sudo ansible-playbook test.yml
+sudo ansible-playbook rhel-oracle.yml
 
 # Start PowerShell
 # pwsh
