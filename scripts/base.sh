@@ -241,7 +241,7 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: gdisk }
       - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
       - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
-- name: Check Base Directories
+  - name: Check Base Directories
     become_user: root
     file:
       path: "{{ item.directory }}"
