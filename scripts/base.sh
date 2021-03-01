@@ -16,54 +16,6 @@ cat >> /install/rhel-oracle.yml << EOF
   vars_files:
     - vars.yml
   tasks:
-  - name: Install packages
-    yum:
-      name: "{{ item.pak }}"
-      state: latest
-    become_user: root
-    loop:
-      - { pak: facter }
-      - { pak: net-snmp }
-      - { pak: net-snmp-utils }
-      - { pak: crash }
-      - { pak: dstat }
-      - { pak: cifs-utils }
-      - { pak: mdadm}
-      - { pak: binutils }
-      - { pak: compat-libcap1 }
-      - { pak: gcc }
-      - { pak: gcc-c++ }
-      - { pak: glibc.i686 }
-      - { pak: glibc }
-      - { pak: glibc-devel.i686 }
-      - { pak: glibc-devel }
-      - { pak: ksh }
-      - { pak: libaio.i686 }
-      - { pak: libaio }
-      - { pak: libaio-devel.i686 }
-      - { pak: libaio-devel }
-      - { pak: libgcc.i686 }
-      - { pak: libgcc }
-      - { pak: libstdc++.i686 }
-      - { pak: libstdc++ }
-      - { pak: libstdc++-devel.i686 }
-      - { pak: libstdc++-devel }
-      - { pak: libXi.i686 }
-      - { pak: libXi }
-      - { pak: libXtst.i686 }
-      - { pak: libXtst }
-      - { pak: make }
-      - { pak: sysstat }
-      - { pak: java-1.8.0-openjdk }
-      - { pak: java-1.8.0-openjdk-devel }
-      - { pak: elfutils-libelf-devel }
-      - { pak: fontconfig-devel }
-      - { pak: librdmacm-devel }
-      - { pak: libstdc++-devel }
-      - { pak: nfs-utils }
-      - { pak: targetcli }
-      - { pak: cloud-utils-growpart }
-      - { pak: gdisk }
   - name: Create Groups
     group:
       name: "{{ item.group }}"
@@ -225,6 +177,133 @@ cat >> /install/rhel-oracle.yml << EOF
     become_user: root
     tags:
       - setup
+  - name: Download Install Files
+    become_user: root
+    get_url:
+      url: "{{ item }}"
+      http_agent: Internet Explorer 3.5 for UNIX
+      tmp_dest: /mnt
+      dest: "/stage"
+    with_items:
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libcap1-1.10-7.el7.x86_64.rpm"
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p6880880_121010_Linux-x86-64.zip"  
+  - name: Install packages
+    yum:
+      name: "{{ item.pak }}"
+      state: latest
+    become_user: root
+    loop:
+      - { pak: facter }
+      - { pak: net-snmp }
+      - { pak: net-snmp-utils }
+      - { pak: crash }
+      - { pak: dstat }
+      - { pak: cifs-utils }
+      - { pak: mdadm}
+      - { pak: binutils }
+      - { pak: compat-libcap1 }
+      - { pak: gcc }
+      - { pak: gcc-c++ }
+      - { pak: glibc.i686 }
+      - { pak: glibc }
+      - { pak: glibc-devel.i686 }
+      - { pak: glibc-devel }
+      - { pak: ksh }
+      - { pak: libaio.i686 }
+      - { pak: libaio }
+      - { pak: libaio-devel.i686 }
+      - { pak: libaio-devel }
+      - { pak: libgcc.i686 }
+      - { pak: libgcc }
+      - { pak: libstdc++.i686 }
+      - { pak: libstdc++ }
+      - { pak: libstdc++-devel.i686 }
+      - { pak: libstdc++-devel }
+      - { pak: libXi.i686 }
+      - { pak: libXi }
+      - { pak: libXtst.i686 }
+      - { pak: libXtst }
+      - { pak: make }
+      - { pak: sysstat }
+      - { pak: java-1.8.0-openjdk }
+      - { pak: java-1.8.0-openjdk-devel }
+      - { pak: elfutils-libelf-devel }
+      - { pak: fontconfig-devel }
+      - { pak: librdmacm-devel }
+      - { pak: libstdc++-devel }
+      - { pak: nfs-utils }
+      - { pak: targetcli }
+      - { pak: cloud-utils-growpart }
+      - { pak: gdisk }
+      - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
+      - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+- name: Check Base Directories
+    become_user: root
+    file:
+      path: "{{ item.directory }}"
+      state: directory
+      mode: '0755'
+      owner: oracle
+      group: oinstall
+    loop:
+      - { directory: '/{{ oracle_folder }}' }
+      - { directory: '/{{ oracle_folder }}/app' }
+      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
+      - { directory: '/{{ oracle_folder }}/app/oracle' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }
+  - name: Generate Response file
+    copy:
+      dest: /stage/db_install.rsp
+      content: "
+        oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v19.0.0\n
+        oracle.install.option=INSTALL_DB_SWONLY\n
+        UNIX_GROUP_NAME=oinstall\n
+        INVENTORY_LOCATION=/u01/app/oraInventory\n
+        ORACLE_HOME=/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1\n
+        ORACLE_BASE=/{{ oracle_folder }}/app/oracle\n
+        oracle.install.db.InstallEdition=EE\n
+        oracle.install.db.OSDBA_GROUP=oinstall\n
+        oracle.install.db.OSOPER_GROUP=oinstall\n
+        oracle.install.db.OSBACKUPDBA_GROUP=oinstall\n
+        oracle.install.db.OSDGDBA_GROUP=oinstall\n
+        oracle.install.db.OSKMDBA_GROUP=oinstall\n
+        oracle.install.db.OSRACDBA_GROUP=oinstall\n
+        oracle.install.db.rootconfig.executeRootScript=false\n
+        oracle.install.db.rootconfig.configMethod=\n
+        oracle.install.db.rootconfig.sudoPath=\n
+        oracle.install.db.rootconfig.sudoUserName=\n
+        oracle.install.db.CLUSTER_NODES=\n
+        oracle.install.db.config.starterdb.type=\n
+        oracle.install.db.config.starterdb.globalDBName=\n
+        oracle.install.db.config.starterdb.SID=\n
+        oracle.install.db.ConfigureAsContainerDB=\n
+        oracle.install.db.config.PDBName=\n
+        oracle.install.db.config.starterdb.characterSet=\n
+        oracle.install.db.config.starterdb.memoryOption=\n
+        oracle.install.db.config.starterdb.memoryLimit=\n
+        oracle.install.db.config.starterdb.installExampleSchemas=\n
+        oracle.install.db.config.starterdb.password.ALL=\n
+        oracle.install.db.config.starterdb.password.SYS=\n
+        oracle.install.db.config.starterdb.password.SYSTEM=\n
+        oracle.install.db.config.starterdb.password.DBSNMP=\n
+        oracle.install.db.config.starterdb.password.PDBADMIN=\n
+        oracle.install.db.config.starterdb.managementOption=\n
+        oracle.install.db.config.starterdb.omsHost=\n
+        oracle.install.db.config.starterdb.omsPort=\n
+        oracle.install.db.config.starterdb.emAdminUser=\n
+        oracle.install.db.config.starterdb.emAdminPassword=\n
+        oracle.install.db.config.starterdb.enableRecovery=\n
+        oracle.install.db.config.starterdb.storageType=\n
+        oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=\n
+        oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=\n
+        oracle.install.db.config.asm.diskGroup=\n
+        oracle.install.db.config.asm.ASMSNMPPassword=\n"
 EOF
 
 # Register the Microsoft RedHat repository
