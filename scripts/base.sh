@@ -72,7 +72,7 @@ cat >> /install/rhel-oracle.yml << EOF
       path: "/u01"
       src: "/dev/mapper/rootvg-u01lv"
       fstype: "xfs"
-      opts: rw,nosuid,noexec
+      opts: defaults
       state: mounted
   - name: Extend rootlv
     lvol:
@@ -177,7 +177,7 @@ cat >> /install/rhel-oracle.yml << EOF
     become_user: root
     tags:
       - setup
-  - name: Download Install Files
+  - name: Download Installation Files
     become_user: root
     get_url:
       url: "{{ item }}"
@@ -239,6 +239,7 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: gdisk }
       - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
       - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+      - { pak: /stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
   - name: Check Base Directories
     become_user: root
     file:
@@ -302,11 +303,12 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=\n
         oracle.install.db.config.asm.diskGroup=\n
         oracle.install.db.config.asm.ASMSNMPPassword=\n"
+        
 EOF
 
 # Register the Microsoft RedHat repository
 curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.repos.d/microsoft.repo
- 
+
 # Install PowerShell
 #sudo yum install -y powershell
 
