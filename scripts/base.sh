@@ -55,21 +55,21 @@ cat >> /install/rhel-oracle.yml << EOF
       owner: oracle
       group: oinstall
     loop:
-      - { directory: '/u01' }
-      - { directory: '/u01/app' }
-      - { directory: '/u01/app/oraInventory' }
-      - { directory: '/u01/app/oracle' }
-      - { directory: '/u01/app/oracle/product' }
-      - { directory: '/u01/app/oracle/product/19.0.0' }
-      - { directory: '/u01/app/oracle/product/19.0.0/dbhome_1' }
+      - { directory: '/{{ oracle_folder }}' }
+      - { directory: '/{{ oracle_folder }}/app' }
+      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
+      - { directory: '/{{ oracle_folder }}/app/oracle' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }
+      - { directory: '/{{ oracle_folder }}/stage' }
       - { directory: '/u02' }
       - { directory: '/u02/oradata' }
       - { directory: '/fra' }
       - { directory: '/dump' }
-      - { directory: '/stage' }
   - name: Mount the created filesystem.
     mount:
-      path: "/u01"
+      path: "/{{ oracle_folder }}"
       src: "/dev/mapper/rootvg-u01lv"
       fstype: "xfs"
       opts: defaults
@@ -183,7 +183,7 @@ cat >> /install/rhel-oracle.yml << EOF
       url: "{{ item }}"
       http_agent: Internet Explorer 3.5 for UNIX
       tmp_dest: "/{{ oracle_folder }}"
-      dest: "/stage"
+      dest: "/{{ oracle_folder }}/stage"
     with_items:
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
@@ -193,10 +193,10 @@ cat >> /install/rhel-oracle.yml << EOF
     shell: df -Th >> /install/df.out
     ignore_errors: True
   - name: Download-Software
-    shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
+    shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
     become_user: root
   - name: Download-Software-Patch
-    shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
+    shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     become_user: root
   - name: Check Base Directories
     become_user: root
@@ -222,7 +222,7 @@ cat >> /install/rhel-oracle.yml << EOF
       mode: 0755
       remote_src: True
     with_items:
-      - "/{{ oracle_folder }}/LINUX.X64_193000_db_home.zip"
+      - "/{{ oracle_folder }}/stage/LINUX.X64_193000_db_home.zip"
   - name: Delete directory OPatch
     file:
       path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/OPatch
@@ -236,16 +236,16 @@ cat >> /install/rhel-oracle.yml << EOF
       mode: 0755
       remote_src: True
     with_items:
-      - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
-      - "/stage/p6880880_121010_Linux-x86-64.zip"    
+      - "/{{ oracle_folder }}/stage/p31326362_190000_Linux-x86-64.zip"
+      - "/{{ oracle_folder }}/stage/p6880880_121010_Linux-x86-64.zip"    
   - name: Generate Response file
     copy:
-      dest: /stage/db_install.rsp
+      dest: /{{ oracle_folder }}/stage/db_install.rsp
       content: "
         oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v19.0.0\n
         oracle.install.option=INSTALL_DB_SWONLY\n
         UNIX_GROUP_NAME=oinstall\n
-        INVENTORY_LOCATION=/u01/app/oraInventory\n
+        INVENTORY_LOCATION=/{{ oracle_folder }}/app/oraInventory\n
         ORACLE_HOME=/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1\n
         ORACLE_BASE=/{{ oracle_folder }}/app/oracle\n
         oracle.install.db.InstallEdition=EE\n
@@ -333,10 +333,68 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: targetcli }
       - { pak: cloud-utils-growpart }
       - { pak: gdisk }
-      - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
-      - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
-      - { pak: /stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
+      - { pak: /{{ oracle_folder }}/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
+      - { pak: /{{ oracle_folder }}/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+      - { pak: /{{ oracle_folder }}/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
       
+EOF
+
+
+cat >> /install/rhel-disk.yml << EOF
+- name: Configure Disk
+  hosts: localhost
+  become: yes
+  become_user: oracle
+
+  tasks:
+  - name: Partition Disks
+    parted:
+      device: "{{ item.device }}"
+      number: 1
+      flags: [ raid ]
+      state: present
+    become_user: root
+    loop:
+      - {device: /dev/sdc}
+      - {device: /dev/sdd}
+      - {device: /dev/sde}
+      - {device: /dev/sdf}
+      - {device: /dev/sdg}
+  - name: Configure Software RAID Volume data
+    shell: mdadm --create /dev/md/mdoradata --level=0 --raid-devices=3 /dev/sdc1 /dev/sdd1 /dev/sde1
+    become_user: root
+  - name: Configure Software RAID Volume archivelog
+    shell: mdadm --create /dev/md/mdarch --level=0 --raid-devices=2 /dev/sdf1 /dev/sdg1
+    become_user: root
+  - name: Format RAID Volumes
+    filesystem:
+      fstype: xfs
+      dev: "{{ item.raid }}"
+    become_user: root
+    loop:
+      - {raid: /dev/md/mdoradata}
+      - {raid: /dev/md/mdarch}
+  - name: Get md127 UUID
+    shell: /sbin/blkid /dev/md127 -s UUID -o value "$1"
+    register: md127uuid
+  - name: Get md126 UUID
+    shell: /sbin/blkid /dev/md126 -s UUID -o value "$1"
+    register: md126uuid
+  - name: Add to fstab
+    mount:
+      path: "{{ item.path }}"
+      src: UUID="{{ item.uuid }}"
+      fstype: xfs
+      opts: defaults,nofail
+      passno: 2
+      state: mounted
+    become_user: root
+    loop:
+      - { uuid: "{{ md127uuid.stdout }}", path: /u02/oradata }
+      - { uuid: "{{ md126uuid.stdout }}", path: /fra }
+  - name: Save RAID Config
+    shell: mdadm --detail --scan --verbose >> /etc/mdadm.conf
+    become_user: root
 EOF
 
 # Register the Microsoft RedHat repository
