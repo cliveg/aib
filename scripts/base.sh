@@ -308,12 +308,12 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.asm.ASMSNMPPassword=\n"
   - name: Download-db_home
     become_user: root
-    command: "wget -O /mnt/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
+    command: "wget -quiet -O /u01/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
     args:
       warn: no
   - name: Download-OraPatch
     become_user: root
-    command: "wget -O /mnt/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
+    command: "wget -quiet -O /u01/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
     args:
       warn: no
   - name: Extract Oracle Software
