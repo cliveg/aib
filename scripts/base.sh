@@ -308,16 +308,16 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.asm.ASMSNMPPassword=\n"
   - name: Download-db_home
     become_user: root
-    command: "cd /mnt && wget -q -O /u01/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
+    command: "cd /mnt && wget -q -O /{{ oracle_folder }}/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
     args:
       warn: no
   - name: Download-OraPatch
     become_user: root
-    command: "cd /mnt && wget -q -O /u01/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
+    command: "cd /mnt && wget -q -O /{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
     args:
       warn: no
   - name: Extract Oracle Software
-    command: "unzip -qq /stage/LINUX.X64_193000_db_home.zip -d /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
+    command: "unzip -qq /{{ oracle_folder }}/LINUX.X64_193000_db_home.zip -d /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
     become_user: root
   - name: Delete directory OPatch
     file:
@@ -331,7 +331,7 @@ cat >> /install/rhel-oracle.yml << EOF
       mode: 0755
       remote_src: True
     with_items:
-      - "/stage/p31326362_190000_Linux-x86-64.zip"
+      - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
       - "/stage/p6880880_121010_Linux-x86-64.zip"
       
 EOF
