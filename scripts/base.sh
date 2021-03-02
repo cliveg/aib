@@ -188,7 +188,10 @@ cat >> /install/rhel-oracle.yml << EOF
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libcap1-1.10-7.el7.x86_64.rpm"
-      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p6880880_121010_Linux-x86-64.zip"  
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p6880880_121010_Linux-x86-64.zip"
+  - name: Log Partitioning
+    shell: df -Th >> /install/df.out
+    ignore_errors: True
   - name: Install packages
     yum:
       name: "{{ item.pak }}"
