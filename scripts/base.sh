@@ -326,7 +326,7 @@ sudo yum -y install python-pip
 sudo yum install ansible -y
 sudo ansible-playbook rhel-oracle.yml
 
-cd /u01
+cd /install
 df -Th >> /install/df2.out
 sudo wget https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/LINUX.X64_193000_db_home.zip
 sudo wget https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/patches/p31326362_190000_Linux-x86-64.zip
