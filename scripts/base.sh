@@ -198,6 +198,22 @@ cat >> /install/rhel-oracle.yml << EOF
   - name: Download-Software-Patch
     shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     become_user: root
+  - name: Check Base Directories
+    become_user: root
+    file:
+      path: "{{ item.directory }}"
+      state: directory
+      mode: '0755'
+      owner: oracle
+      group: oinstall
+    loop:
+      - { directory: '/{{ oracle_folder }}' }
+      - { directory: '/{{ oracle_folder }}/app' }
+      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
+      - { directory: '/{{ oracle_folder }}/app/oracle' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }    
   - name: Extract Oracle Software
     become_user: root  
     unarchive:
@@ -222,22 +238,6 @@ cat >> /install/rhel-oracle.yml << EOF
     with_items:
       - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
       - "/stage/p6880880_121010_Linux-x86-64.zip"    
-  - name: Check Base Directories
-    become_user: root
-    file:
-      path: "{{ item.directory }}"
-      state: directory
-      mode: '0755'
-      owner: oracle
-      group: oinstall
-    loop:
-      - { directory: '/{{ oracle_folder }}' }
-      - { directory: '/{{ oracle_folder }}/app' }
-      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
-      - { directory: '/{{ oracle_folder }}/app/oracle' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }
   - name: Generate Response file
     copy:
       dest: /stage/db_install.rsp
