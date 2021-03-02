@@ -192,57 +192,6 @@ cat >> /install/rhel-oracle.yml << EOF
   - name: Log Partitioning
     shell: df -Th >> /install/df.out
     ignore_errors: True
-  - name: Install packages
-    yum:
-      name: "{{ item.pak }}"
-      state: latest
-    become_user: root
-    loop:
-      - { pak: facter }
-      - { pak: net-snmp }
-      - { pak: net-snmp-utils }
-      - { pak: crash }
-      - { pak: dstat }
-      - { pak: cifs-utils }
-      - { pak: mdadm}
-      - { pak: binutils }
-      - { pak: compat-libcap1 }
-      - { pak: gcc }
-      - { pak: gcc-c++ }
-      - { pak: glibc.i686 }
-      - { pak: glibc }
-      - { pak: glibc-devel.i686 }
-      - { pak: glibc-devel }
-      - { pak: ksh }
-      - { pak: libaio.i686 }
-      - { pak: libaio }
-      - { pak: libaio-devel.i686 }
-      - { pak: libaio-devel }
-      - { pak: libgcc.i686 }
-      - { pak: libgcc }
-      - { pak: libstdc++.i686 }
-      - { pak: libstdc++ }
-      - { pak: libstdc++-devel.i686 }
-      - { pak: libstdc++-devel }
-      - { pak: libXi.i686 }
-      - { pak: libXi }
-      - { pak: libXtst.i686 }
-      - { pak: libXtst }
-      - { pak: make }
-      - { pak: sysstat }
-      - { pak: java-1.8.0-openjdk }
-      - { pak: java-1.8.0-openjdk-devel }
-      - { pak: elfutils-libelf-devel }
-      - { pak: fontconfig-devel }
-      - { pak: librdmacm-devel }
-      - { pak: libstdc++-devel }
-      - { pak: nfs-utils }
-      - { pak: targetcli }
-      - { pak: cloud-utils-growpart }
-      - { pak: gdisk }
-      - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
-      - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
-      - { pak: /stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
   - name: Check Base Directories
     become_user: root
     file:
@@ -309,8 +258,6 @@ cat >> /install/rhel-oracle.yml << EOF
   - name: Download-db_home
     become_user: root
     command: "cd /mnt && wget -q -O /{{ oracle_folder }}/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
-    args:
-      warn: no
   - name: Download-OraPatch
     become_user: root
     command: "cd /mnt && wget -q -O /{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
@@ -333,6 +280,57 @@ cat >> /install/rhel-oracle.yml << EOF
     with_items:
       - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
       - "/stage/p6880880_121010_Linux-x86-64.zip"
+  - name: Install packages
+    yum:
+      name: "{{ item.pak }}"
+      state: latest
+    become_user: root
+    loop:
+      - { pak: facter }
+      - { pak: net-snmp }
+      - { pak: net-snmp-utils }
+      - { pak: crash }
+      - { pak: dstat }
+      - { pak: cifs-utils }
+      - { pak: mdadm}
+      - { pak: binutils }
+      - { pak: compat-libcap1 }
+      - { pak: gcc }
+      - { pak: gcc-c++ }
+      - { pak: glibc.i686 }
+      - { pak: glibc }
+      - { pak: glibc-devel.i686 }
+      - { pak: glibc-devel }
+      - { pak: ksh }
+      - { pak: libaio.i686 }
+      - { pak: libaio }
+      - { pak: libaio-devel.i686 }
+      - { pak: libaio-devel }
+      - { pak: libgcc.i686 }
+      - { pak: libgcc }
+      - { pak: libstdc++.i686 }
+      - { pak: libstdc++ }
+      - { pak: libstdc++-devel.i686 }
+      - { pak: libstdc++-devel }
+      - { pak: libXi.i686 }
+      - { pak: libXi }
+      - { pak: libXtst.i686 }
+      - { pak: libXtst }
+      - { pak: make }
+      - { pak: sysstat }
+      - { pak: java-1.8.0-openjdk }
+      - { pak: java-1.8.0-openjdk-devel }
+      - { pak: elfutils-libelf-devel }
+      - { pak: fontconfig-devel }
+      - { pak: librdmacm-devel }
+      - { pak: libstdc++-devel }
+      - { pak: nfs-utils }
+      - { pak: targetcli }
+      - { pak: cloud-utils-growpart }
+      - { pak: gdisk }
+      - { pak: /stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
+      - { pak: /stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+      - { pak: /stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
       
 EOF
 
