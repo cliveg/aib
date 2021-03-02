@@ -333,9 +333,9 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: targetcli }
       - { pak: cloud-utils-growpart }
       - { pak: gdisk }
-      - { pak: /{{ oracle_folder }}/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
-      - { pak: /{{ oracle_folder }}/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
-      - { pak: /{{ oracle_folder }}/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
+      - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
+      - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+      - { pak: /u01/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
       
 EOF
 
