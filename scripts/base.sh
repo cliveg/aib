@@ -193,7 +193,10 @@ cat >> /install/rhel-oracle.yml << EOF
     shell: df -Th >> /install/df.out
     ignore_errors: True
   - name: Download-Software
-    shell: wget -P /u01 https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/LINUX.X64_193000_db_home.zip
+    shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
+    become_user: root
+  - name: Download-Software-Patch
+    shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     become_user: root
   - name: Check Base Directories
     become_user: root
@@ -328,10 +331,6 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(
 sudo yum -y install python-pip
 sudo yum install ansible -y
 sudo ansible-playbook rhel-oracle.yml
-
-df -Th >> /install/df2.out
-sudo wget -P /u01 https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/patches/p31326362_190000_Linux-x86-64.zip
-df -Th >> /install/df3.out
 # Start PowerShell
 # pwsh
 
