@@ -183,7 +183,7 @@ cat >> /install/rhel-oracle.yml << EOF
       url: "{{ item }}"
       http_agent: Internet Explorer 3.5 for UNIX
       tmp_dest: "/{{ oracle_folder }}"
-      dest: "/{{ oracle_folder }}/stage"
+      dest: "/{{ oracle_folder }}/stage/"
     with_items:
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
@@ -194,9 +194,11 @@ cat >> /install/rhel-oracle.yml << EOF
     ignore_errors: True
   - name: Download-Software
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
+    warn: false
     become_user: root
   - name: Download-Software-Patch
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
+    warn: false
     become_user: root
   - name: Check Base Directories
     become_user: root
@@ -237,7 +239,7 @@ cat >> /install/rhel-oracle.yml << EOF
       remote_src: True
     with_items:
       - "/{{ oracle_folder }}/stage/p31326362_190000_Linux-x86-64.zip"
-      - "/{{ oracle_folder }}/stage/p6880880_121010_Linux-x86-64.zip"    
+      - "/{{ oracle_folder }}/stage/p6880880_121010_Linux-x86-64.zip"
   - name: Generate Response file
     copy:
       dest: /{{ oracle_folder }}/stage/db_install.rsp
