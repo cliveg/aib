@@ -198,6 +198,30 @@ cat >> /install/rhel-oracle.yml << EOF
   - name: Download-Software-Patch
     shell: wget -P /{{ oracle_folder }} https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     become_user: root
+  - name: Extract Oracle Software
+    become_user: root  
+    unarchive:
+      src: "{{ item }}"
+      dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
+      mode: 0755
+      remote_src: True
+    with_items:
+      - "/{{ oracle_folder }}/LINUX.X64_193000_db_home.zip"
+  - name: Delete directory OPatch
+    file:
+      path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/OPatch
+      state: absent
+    become_user: root
+  - name: Extract Oracle Software Updates
+    become_user: root  
+    unarchive:
+      src: "{{ item }}"
+      dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
+      mode: 0755
+      remote_src: True
+    with_items:
+      - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
+      - "/stage/p6880880_121010_Linux-x86-64.zip"    
   - name: Check Base Directories
     become_user: root
     file:
