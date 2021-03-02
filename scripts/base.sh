@@ -255,38 +255,6 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=\n
         oracle.install.db.config.asm.diskGroup=\n
         oracle.install.db.config.asm.ASMSNMPPassword=\n"
-  - name: Download-db_home
-    become_user: root
-    command: "cd /mnt && wget -q -O /{{ oracle_folder }}/LINUX.X64_193000_db_home.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip"
-  - name: Download-OraPatch
-    become_user: root
-    command: "cd /mnt && wget -q -O /{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip"
-    args:
-      warn: no
-  - name: Extract Oracle Software
-    become_user: root  
-    unarchive:
-      src: "{{ item }}"
-      dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
-      mode: 0755
-      remote_src: True
-    with_items:
-      - "/{{ oracle_folder }}/LINUX.X64_193000_db_home.zip"
-  - name: Delete directory OPatch
-    file:
-      path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/OPatch
-      state: absent
-    become_user: root
-  - name: Extract Oracle Software Updates
-    become_user: root  
-    unarchive:
-      src: "{{ item }}"
-      dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
-      mode: 0755
-      remote_src: True
-    with_items:
-      - "/{{ oracle_folder }}/p31326362_190000_Linux-x86-64.zip"
-      - "/stage/p6880880_121010_Linux-x86-64.zip"
   - name: Install packages
     yum:
       name: "{{ item.pak }}"
@@ -358,6 +326,11 @@ sudo yum -y install python-pip
 sudo yum install ansible -y
 sudo ansible-playbook rhel-oracle.yml
 
+cd /u01
+df -Th >> /install/df2.out
+sudo wget https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/LINUX.X64_193000_db_home.zip
+sudo wget https://z65xhf20d5ww0btlosktv21u.blob.core.windows.net/pub/patches/p31326362_190000_Linux-x86-64.zip
+df -Th >> /install/df3.out
 # Start PowerShell
 # pwsh
 
