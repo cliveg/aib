@@ -269,42 +269,42 @@ cat >> /install/rhel-oracle.yml << EOF
         ORACLE_HOME=/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1\n
         ORACLE_BASE=/{{ oracle_folder }}/app/oracle\n
         oracle.install.db.InstallEdition=EE\n
-        oracle.install.db.OSDBA_GROUP=oinstall\n
-        oracle.install.db.OSOPER_GROUP=oinstall\n
-        oracle.install.db.OSBACKUPDBA_GROUP=oinstall\n
-        oracle.install.db.OSDGDBA_GROUP=oinstall\n
-        oracle.install.db.OSKMDBA_GROUP=oinstall\n
-        oracle.install.db.OSRACDBA_GROUP=oinstall\n
+        oracle.install.db.OSDBA_GROUP=dba\n
+        oracle.install.db.OSOPER_GROUP=oper\n
+        oracle.install.db.OSBACKUPDBA_GROUP=dba\n
+        oracle.install.db.OSDGDBA_GROUP=dba\n
+        oracle.install.db.OSKMDBA_GROUP=dba\n
+        oracle.install.db.OSRACDBA_GROUP=dba\n
         oracle.install.db.rootconfig.executeRootScript=false\n
         oracle.install.db.rootconfig.configMethod=\n
         oracle.install.db.rootconfig.sudoPath=\n
         oracle.install.db.rootconfig.sudoUserName=\n
-        oracle.install.db.CLUSTER_NODES=\n
-        oracle.install.db.config.starterdb.type=\n
-        oracle.install.db.config.starterdb.globalDBName=\n
-        oracle.install.db.config.starterdb.SID=\n
+#        oracle.install.db.CLUSTER_NODES=\n
+        oracle.install.db.config.starterdb.type=GENERAL_PURPOSE\n
+        oracle.install.db.config.starterdb.globalDBName=orcl.oradb3.private\n
+        oracle.install.db.config.starterdb.SID=orc1\n
         oracle.install.db.ConfigureAsContainerDB=\n
-        oracle.install.db.config.PDBName=\n
-        oracle.install.db.config.starterdb.characterSet=\n
-        oracle.install.db.config.starterdb.memoryOption=\n
-        oracle.install.db.config.starterdb.memoryLimit=\n
+#        oracle.install.db.config.PDBName=\n
+        oracle.install.db.config.starterdb.characterSet=AL32UTF8\n
+        oracle.install.db.config.starterdb.memoryOption=true\n
+        oracle.install.db.config.starterdb.memoryLimit=65024\n
         oracle.install.db.config.starterdb.installExampleSchemas=\n
-        oracle.install.db.config.starterdb.password.ALL=\n
-        oracle.install.db.config.starterdb.password.SYS=\n
-        oracle.install.db.config.starterdb.password.SYSTEM=\n
-        oracle.install.db.config.starterdb.password.DBSNMP=\n
-        oracle.install.db.config.starterdb.password.PDBADMIN=\n
-        oracle.install.db.config.starterdb.managementOption=\n
-        oracle.install.db.config.starterdb.omsHost=\n
-        oracle.install.db.config.starterdb.omsPort=\n
-        oracle.install.db.config.starterdb.emAdminUser=\n
-        oracle.install.db.config.starterdb.emAdminPassword=\n
-        oracle.install.db.config.starterdb.enableRecovery=\n
-        oracle.install.db.config.starterdb.storageType=\n
-        oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=\n
-        oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=\n
-        oracle.install.db.config.asm.diskGroup=\n
-        oracle.install.db.config.asm.ASMSNMPPassword=\n"
+        oracle.install.db.config.starterdb.password.ALL={{ oraclepass }}\n
+#        oracle.install.db.config.starterdb.password.SYS=\n
+#        oracle.install.db.config.starterdb.password.SYSTEM=\n
+#        oracle.install.db.config.starterdb.password.DBSNMP=\n
+#        oracle.install.db.config.starterdb.password.PDBADMIN=\n
+        oracle.install.db.config.starterdb.managementOption=DEFAULT\n
+#        oracle.install.db.config.starterdb.omsHost=\n
+#        oracle.install.db.config.starterdb.omsPort=\n
+#        oracle.install.db.config.starterdb.emAdminUser={{ oraclepass }}\n
+#        oracle.install.db.config.starterdb.emAdminPassword={{ oraclepass }}\n
+        oracle.install.db.config.starterdb.enableRecovery=true\n
+        oracle.install.db.config.starterdb.storageType=FILE_SYSTEM_STORAGE\n
+        oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=/u02/oradata\n
+        oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/fra\n
+#        oracle.install.db.config.asm.diskGroup=\n
+#        oracle.install.db.config.asm.ASMSNMPPassword=\n"
 
   - name: Extract Management Software
     become_user: root  
@@ -314,8 +314,7 @@ cat >> /install/rhel-oracle.yml << EOF
       remote_src: True
     with_items:
       - "/{{ oracle_folder }}/stage/RHFiles.tar"
-
-- name: Install packages
+  - name: Install packages
     yum:
       name: "{{ item.pak }}"
       state: latest
@@ -372,8 +371,7 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: /var/tmp/centrify/CentrifyDC-openssl-5.7.0-207-rhel5.x86_64.rpm }
       - { pak: /var/tmp/centrify/CentrifyDC-openldap-5.7.0-207-rhel5.x86_64.rpm }
       - { pak: /var/tmp/centrify/CentrifyDC-curl-5.7.0-207-rhel5.x86_64.rpm }
-      - { pak: /var/tmp/centrify/CentrifyDC-5.7.0-207-rhel5.x86_64.rpm }      
-      
+      - { pak: /var/tmp/centrify/CentrifyDC-5.7.0-207-rhel5.x86_64.rpm }            
 EOF
 
 
