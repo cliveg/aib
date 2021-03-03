@@ -41,7 +41,7 @@ cat >> /install/rhel-oracle.yml << EOF
     lvol:
       vg: rootvg
       lv: u01lv
-      size: 20480
+      size: "20480"
   - name: Create a filesystem on lvm".
     filesystem:
       fstype: "xfs"
@@ -177,13 +177,31 @@ cat >> /install/rhel-oracle.yml << EOF
     become_user: root
     tags:
       - setup
+  - name: Check Base Directories Just in case
+    become_user: root
+    file:
+      path: "{{ item.directory }}"
+      state: directory
+      mode: '0755'
+      owner: oracle
+      group: oinstall
+    loop:
+      - { directory: '/{{ oracle_folder }}' }
+      - { directory: '/{{ oracle_folder }}/stage' }
+      - { directory: '/{{ oracle_folder }}/app' }
+      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
+      - { directory: '/{{ oracle_folder }}/app/oracle' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
+      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }    
+      
   - name: Download Installation Files
     become_user: root
     get_url:
       url: "{{ item }}"
       http_agent: Internet Explorer 3.5 for UNIX
       tmp_dest: "/{{ oracle_folder }}"
-      dest: "/{{ oracle_folder }}/stage/"
+      dest: "/{{ oracle_folder }}/stage"
     with_items:
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
@@ -413,6 +431,7 @@ curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.
 
 #sudo rpm -Uvh omi-1.1.0.ssl_100.x64.rpm dsc-1.1.1-294.ssl_100.x64.rpm
 
+mkdir /u01/stage
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
 sudo yum -y install python-pip
 sudo yum install ansible -y
