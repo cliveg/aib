@@ -194,11 +194,13 @@ cat >> /install/rhel-oracle.yml << EOF
     ignore_errors: True
   - name: Download-Software
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
-    warn: false
+    args:
+      warn: false
     become_user: root
   - name: Download-Software-Patch
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
-    warn: false
+    args:
+      warn: false
     become_user: root
   - name: Check Base Directories
     become_user: root
