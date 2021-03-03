@@ -397,10 +397,10 @@ cat >> /install/rhel-disk.yml << EOF
       - {raid: /dev/md/mdoradata}
       - {raid: /dev/md/mdarch}
   - name: Get md127 UUID
-    shell: /sbin/blkid /dev/md127 -s UUID -o value "$1"
+    shell: /sbin/blkid /dev/md127 -s UUID -o value "\$1"
     register: md127uuid
   - name: Get md126 UUID
-    shell: /sbin/blkid /dev/md126 -s UUID -o value "$1"
+    shell: /sbin/blkid /dev/md126 -s UUID -o value "\$1"
     register: md126uuid
   - name: Add to fstab
     mount:
