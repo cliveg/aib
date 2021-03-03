@@ -366,7 +366,7 @@ cat >> /install/rhel-disk.yml << EOF
 - name: Configure Disk
   hosts: localhost
   become: yes
-  become_user: oracle
+  become_user: root
 
   tasks:
   - name: Partition Disks
@@ -398,10 +398,12 @@ cat >> /install/rhel-disk.yml << EOF
       - {raid: /dev/md/mdarch}
   - name: Get md127 UUID
     shell: /sbin/blkid /dev/md127 -s UUID -o value "\$1"
+    become_user: root    
     register: md127uuid
   - name: Get md126 UUID
     shell: /sbin/blkid /dev/md126 -s UUID -o value "\$1"
     register: md126uuid
+    become_user: root    
   - name: Add to fstab
     mount:
       path: "{{ item.path }}"
