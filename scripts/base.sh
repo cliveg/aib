@@ -325,7 +325,7 @@ p'
         characterSet=US7ASCII\n
         nationalCharacterSet=UTF8\n
         memoryPercentage=80\n
-        totalMemory=65024\n"
+        totalMemory=0\n"
   - name: Extract Management Software
     become_user: root  
     unarchive:
