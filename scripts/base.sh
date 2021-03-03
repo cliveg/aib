@@ -207,9 +207,7 @@ cat >> /install/rhel-oracle.yml << EOF
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/compat-libcap1-1.10-7.el7.x86_64.rpm"
       - "https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p6880880_121010_Linux-x86-64.zip"
-  - name: Log Partitioning
-    shell: df -Th >> /install/df.out
-    ignore_errors: True
+      - "https://{{ blob_account }}.blob.core.windows.net/pub/rhel/RHFiles.tar"
   - name: Download-Software
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
     args:
@@ -307,7 +305,17 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=\n
         oracle.install.db.config.asm.diskGroup=\n
         oracle.install.db.config.asm.ASMSNMPPassword=\n"
-  - name: Install packages
+
+  - name: Extract Management Software
+    become_user: root  
+    unarchive:
+      src: "{{ item }}"
+      dest: "/"
+      remote_src: True
+    with_items:
+      - "/{{ oracle_folder }}/stage/RHFiles.tar"
+
+- name: Install packages
     yum:
       name: "{{ item.pak }}"
       state: latest
@@ -358,6 +366,13 @@ cat >> /install/rhel-oracle.yml << EOF
       - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
       - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
       - { pak: /u01/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
+      - { pak: /var/tmp/falcon-sensor-5.43.0-10807.el7.x86_64.rpm }
+      - { pak: /var/tmp/managesoft-12.1.0-1.x86_64.rpm }
+      - { pak: /var/tmp/NessusAgent-7.7.0-es7.x86_64.rpm }
+      - { pak: /var/tmp/centrify/CentrifyDC-openssl-5.7.0-207-rhel5.x86_64.rpm }
+      - { pak: /var/tmp/centrify/CentrifyDC-openldap-5.7.0-207-rhel5.x86_64.rpm }
+      - { pak: /var/tmp/centrify/CentrifyDC-curl-5.7.0-207-rhel5.x86_64.rpm }
+      - { pak: /var/tmp/centrify/CentrifyDC-5.7.0-207-rhel5.x86_64.rpm }      
       
 EOF
 
@@ -372,7 +387,7 @@ cat >> /install/rhel-disk.yml << EOF
   - name: Partition Disks
     parted:
       device: "{{ item.device }}"
-      number: 1
+      number: "1"
       flags: [ raid ]
       state: present
     become_user: root
@@ -410,7 +425,7 @@ cat >> /install/rhel-disk.yml << EOF
       src: UUID="{{ item.uuid }}"
       fstype: xfs
       opts: defaults,nofail
-      passno: 2
+      passno: "2"
       state: mounted
     become_user: root
     loop:
