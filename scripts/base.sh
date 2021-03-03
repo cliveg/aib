@@ -305,7 +305,27 @@ cat >> /install/rhel-golden.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/dump\n
 #        oracle.install.db.config.asm.diskGroup=\n
 #        oracle.install.db.config.asm.ASMSNMPPassword=\n"
-
+  - name: Create Listener from netca
+    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rs
+p'
+  - name: Create Response File for dbca
+    copy:
+      dest: /{{ oracle_folder }}/stage/dbca.rsp
+      content: "
+        responseFileVersion=/oracle/assistants/rspfmt_dbca_response_schema_v19.0.0\n
+        gdbName=orcl.oradb3.private\n
+        sid=orc1\n
+        templateName=General_Purpose.dbc\n
+        sysPassword={{ vmpassword }}\n
+        systemPassword={{ vmpassword }}\n
+        emConfiguration=DBEXPRESS\n
+        emExpressPort=5500\n
+        datafileDestination=/u02/oradata\n
+        recoveryAreaDestination=/dump\n
+        characterSet=US7ASCII\n
+        nationalCharacterSet=UTF8\n
+        memoryPercentage=80\n
+        totalMemory=65024\n"
   - name: Extract Management Software
     become_user: root  
     unarchive:
@@ -454,6 +474,22 @@ cat >> /install/rhel-post.yml << EOF
   - name: Execute DB home Root Command
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
     become_user: root
+  - name: Create Database
+    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/dbca -silent -createDatabase -responseFile /{{ oracle_folder }}/stage/dbca.rsp'
+    become_user: oracle    
+  - name: Create Oracle Home Variable
+    lineinfile: dest='/home/oracle/.bashrc' line='export ORACLE_HOME=/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1'
+    become_user: oracle    
+  - name: Create Oracle Sid Variable
+    lineinfile: dest='/home/oracle/.bashrc' line='export ORACLE_SID=orc1'
+    become_user: oracle    
+  - name: Add Oracle Home Bin Folder
+    lineinfile: dest='/home/oracle/.bashrc' line='export PATH=$PATH:$ORACLE_HOME/bin'
+    become_user: oracle    
+  - name: Change oratab
+    lineinfile: dest='/etc/oratab' regexp='^ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:N' line='ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:Y'
+    become_user: root
+    
 EOF
 
 # Register the Microsoft RedHat repository
