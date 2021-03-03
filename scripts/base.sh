@@ -397,7 +397,8 @@ cat >> /install/rhel-post.yml << EOF
   hosts: localhost
   become: yes
   become_user: root
-
+  vars_files:
+    - vars.yml
   tasks:
   - name: Partition Disks
     parted:
