@@ -9,7 +9,7 @@ EOF
 
 cd /install
 
-cat >> /install/rhel-oracle.yml << EOF
+cat >> /install/rhel-golden.yml << EOF
 - name: Configure Server
   hosts: localhost
   become: yes
@@ -297,12 +297,12 @@ cat >> /install/rhel-oracle.yml << EOF
         oracle.install.db.config.starterdb.managementOption=DEFAULT\n
 #        oracle.install.db.config.starterdb.omsHost=\n
 #        oracle.install.db.config.starterdb.omsPort=\n
-#        oracle.install.db.config.starterdb.emAdminUser={{ oraclepass }}\n
-#        oracle.install.db.config.starterdb.emAdminPassword={{ oraclepass }}\n
+#        oracle.install.db.config.starterdb.emAdminUser=\n
+#        oracle.install.db.config.starterdb.emAdminPassword=\n
         oracle.install.db.config.starterdb.enableRecovery=true\n
         oracle.install.db.config.starterdb.storageType=FILE_SYSTEM_STORAGE\n
         oracle.install.db.config.starterdb.fileSystemStorage.dataLocation=/u02/oradata\n
-        oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/fra\n
+        oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/dump\n
 #        oracle.install.db.config.asm.diskGroup=\n
 #        oracle.install.db.config.asm.ASMSNMPPassword=\n"
 
@@ -375,7 +375,7 @@ cat >> /install/rhel-oracle.yml << EOF
 EOF
 
 
-cat >> /install/rhel-disk.yml << EOF
+cat >> /install/rhel-post.yml << EOF
 - name: Configure Disk
   hosts: localhost
   become: yes
@@ -432,6 +432,28 @@ cat >> /install/rhel-disk.yml << EOF
   - name: Save RAID Config
     shell: mdadm --detail --scan --verbose >> /etc/mdadm.conf
     become_user: root
+    
+  - name: Fix Directory Permissions for Oracle Install
+    become_user: root
+    file:
+      path: "{{ item.directory }}"
+      state: directory
+      recurse: yes
+      mode: '0755'
+      owner: oracle
+      group: oinstall
+    loop:
+      - { directory: '/{{ oracle_folder }}' }
+      - { directory: '/u02' }
+  - name: Install Oracle
+    command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/runInstaller -silent -waitforcompletion -responseFile /{{ oracle_folder }}/stage/db_install.rsp"
+    become_user: oracle
+  - name: Execute Inventory Root Command
+    command: "{{ oracle_folder }}/app/oracle/inventory/orainstRoot.sh"
+    become_user: root
+  - name: Execute DB home Root Command
+    command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
+    become_user: root
 EOF
 
 # Register the Microsoft RedHat repository
@@ -451,7 +473,7 @@ sudo mkdir -p /u01/stage
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
 sudo yum -y install python-pip
 sudo yum install ansible -y
-sudo ansible-playbook rhel-oracle.yml
+sudo ansible-playbook rhel-golden.yml
 # Start PowerShell
 # pwsh
 
