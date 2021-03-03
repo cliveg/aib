@@ -305,9 +305,6 @@ cat >> /install/rhel-golden.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/dump\n
 #        oracle.install.db.config.asm.diskGroup=\n
 #        oracle.install.db.config.asm.ASMSNMPPassword=\n"
-  - name: Create Listener from netca
-    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rs
-p'
   - name: Create Response File for dbca
     copy:
       dest: /{{ oracle_folder }}/stage/dbca.rsp
@@ -474,6 +471,10 @@ cat >> /install/rhel-post.yml << EOF
   - name: Execute DB home Root Command
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
     become_user: root
+  - name: Create Listener from netca
+    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rs
+p'
+    become_user: oracle    
   - name: Create Database
     command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/dbca -silent -createDatabase -responseFile /{{ oracle_folder }}/stage/dbca.rsp'
     become_user: oracle    
@@ -488,8 +489,7 @@ cat >> /install/rhel-post.yml << EOF
     become_user: oracle    
   - name: Change oratab
     lineinfile: dest='/etc/oratab' regexp='^ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:N' line='ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:Y'
-    become_user: root
-    
+    become_user: root    
 EOF
 
 # Register the Microsoft RedHat repository
