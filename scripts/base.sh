@@ -331,6 +331,11 @@ cat >> /install/rhel-golden.yml << EOF
       remote_src: True
     with_items:
       - "/{{ oracle_folder }}/stage/RHFiles.tar"
+  - name: Delete File from RHFiles.tar
+    file:
+      path: /{{ oracle_folder }}/etc/NetworkManager/conf.d/90-dns-none.conf
+      state: absent
+    become_user: root      
   - name: Install packages
     yum:
       name: "{{ item.pak }}"
