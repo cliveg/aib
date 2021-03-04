@@ -490,7 +490,7 @@ cat >> /install/post-disk-5drive.yml << EOF
   - name: Fail if six managed disks not present
     fail:
       msg: "*** 5 Disks Configuration ***"
-    when: managed_disks.stat.exists and managed_disks.stat.isblk  
+    when: managed_disks.stat.exists != True 
   - name: Partition Disks
     parted:
       device: "{{ item.device }}"
