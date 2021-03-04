@@ -412,45 +412,45 @@ EOF
 cat >> /install/post.sh << EOF
 #!/bin/bash
 
-  menu_option_one() {
-    echo "Configuring Storage"
-    ansible-playbook /install/post-disk-5drive.yml
-  }
+menu_option_one() {
+  echo "Configuring Storage"
+  ansible-playbook /install/post-disk-5drive.yml
+}
 
-  menu_option_two() {
-    echo "Configuring Oracle with SampleDB"
-    ansible-playbook /install/post-orainstall-sampledb.yml
-  }
+menu_option_two() {
+  echo "Configuring Oracle with SampleDB"
+  ansible-playbook /install/post-orainstall-sampledb.yml
+}
 
-  press_enter() {
-    echo ""
-    echo -n "     Press Enter to continue "
-    read
-    clear
-  }
+press_enter() {
+  echo ""
+  echo -n "     Press Enter to continue "
+  read
+  clear
+}
 
-  incorrect_selection() {
-    echo "Incorrect selection! Try again."
-  }
+incorrect_selection() {
+  echo "Incorrect selection! Try again."
+}
 
-  until [ "$selection" = "0" ]; do
-    clear
-    echo "        Server Build Post Steps"
-    echo ""
-    echo "        1  -  Configure Storage (5 Drive)"
-    echo "        2  -  Configure Oracle with SampleDB"
-    echo "        0  -  Exit"
-    echo ""
-    echo -n "  Enter selection: "
-    read selection
-    echo ""
-    case $selection in
-      1 ) clear ; menu_option_one ; press_enter ;;
-      2 ) clear ; menu_option_two ; press_enter ;;
-      0 ) clear ; exit ;;
-      * ) clear ; incorrect_selection ; press_enter ;;
-    esac
-  done
+until [ "$selection" = "0" ]; do
+  clear
+  echo "        Server Build Post Steps"
+  echo ""
+  echo "        1  -  Configure Storage (5 Drive)"
+  echo "        2  -  Configure Oracle with SampleDB"
+  echo "        0  -  Exit"
+  echo ""
+  echo -n "  Enter selection: "
+  read selection
+  echo ""
+  case $selection in
+    1 ) clear ; menu_option_one ; press_enter ;;
+    2 ) clear ; menu_option_two ; press_enter ;;
+    0 ) clear ; exit ;;
+    * ) clear ; incorrect_selection ; press_enter ;;
+  esac
+done
 
 EOF
 
