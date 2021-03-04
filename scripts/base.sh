@@ -475,7 +475,7 @@ cat >> /install/post-disk-5drive.yml << EOF
     lineinfile:
       path: /etc/hosts
       insertafter: EOF
-      line: "127.0.0.1 {{ ansible_hostname }}.enbridge.com"
+      line: "127.0.0.1 {{ ansible_hostname }}.contoso.com"
       state: present
       owner: root
       group: root
@@ -555,7 +555,7 @@ cat >> /install/post-disk-asm.yml << EOF
     lineinfile:
       path: /etc/hosts
       insertafter: EOF
-      line: "127.0.0.1 {{ ansible_hostname }}.enbridge.com"
+      line: "127.0.0.1 {{ ansible_hostname }}.contoso.com"
       state: present
       owner: root
       group: root
@@ -575,8 +575,8 @@ cat >> /install/post-disk-asm.yml << EOF
     become_user: root
     loop:
       - { pak: kmod-oracleasm.x86_64 }
-      - { pak: oracleasm-support.x86_64 }
-      - { pak: "https://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el6.x86_64.rpm" } 
+      - { pak: "https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.11-2.el7.x86_64.rpm" }
+      - { pak: "https://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el7.x86_64.rpm" } 
   - name: Create ASM Groups
     group:
       name: "{{ item.group }}"
