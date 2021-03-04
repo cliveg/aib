@@ -151,11 +151,16 @@ cat >> /install/rhel-golden.yml << EOF
   - name: Run Disable Transparent Hugepages script
     shell: ~/disable_trans_hugepages.sh
     become_user: root
-  - name: Keep SSH Session alive longer
-    command: "sed -i /etc/ssh/sshd_config -e 's:.ClientAliveInterval 0:ClientAliveInterval 60:'; sed -i /etc/ssh/sshd_config -e 's:.TCPKeepAlive yes:TCPKeepAlive yes:'"
-    args:
-      warn: false    
-    become_user: root
+  - name: Enable TCPKeepAlive
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#TCPKeepAlive yes'
+      line: TCPKeepAlive yes
+  - name: Enable ClientAliveInterval
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: '^#ClientAliveInterval 0'
+      line: ClientAliveInterval 60
   - name: Set readline editing to to vi
     command: "set -o vi"
     become_user: root    
@@ -466,6 +471,14 @@ cat >> /install/post-disk-5drive.yml << EOF
   vars_files:
     - vars.yml
   tasks:
+  - name: Replace a localhost entry with our own
+    lineinfile:
+      path: /etc/hosts
+      regexp: '^127\.0\.0\.1'
+      line: 127.0.0.1 localhost
+      owner: root
+      group: root
+      mode: '0644'
   - name: Partition Disks
     parted:
       device: "{{ item.device }}"
