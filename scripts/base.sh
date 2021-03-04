@@ -478,8 +478,7 @@ cat >> /install/rhel-post.yml << EOF
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
     become_user: root
   - name: Create Listener from netca
-    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rs
-p'
+    command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rsp'
     become_user: oracle    
   - name: Create Database
     command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/dbca -silent -createDatabase -responseFile /{{ oracle_folder }}/stage/dbca.rsp'
