@@ -156,11 +156,13 @@ cat >> /install/rhel-golden.yml << EOF
       path: /etc/ssh/sshd_config
       regexp: '^#TCPKeepAlive yes'
       line: TCPKeepAlive yes
+    become_user: root  
   - name: Enable ClientAliveInterval
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^#ClientAliveInterval 0'
       line: ClientAliveInterval 60
+    become_user: root      
   - name: Set readline editing to to vi
     shell: "set -o vi"
     become_user: root    
@@ -183,6 +185,7 @@ cat >> /install/rhel-golden.yml << EOF
       state: unmounted
     tags:
       - setup
+    become_user: root      
   - name: restart agent
     service:
       name: waagent.service
