@@ -471,11 +471,13 @@ cat >> /install/post-disk-5drive.yml << EOF
   vars_files:
     - vars.yml
   tasks:
+  
   - name: Replace a localhost entry with our own
     lineinfile:
       path: /etc/hosts
-      regexp: '^127\.0\.0\.1'
-      line: 127.0.0.1 localhost
+      insertafter: EOF
+      line: "127.0.0.1 {{ ansible_hostname }}.enbridge.com"
+      state: present
       owner: root
       group: root
       mode: '0644'
@@ -485,7 +487,6 @@ cat >> /install/post-disk-5drive.yml << EOF
       number: "1"
       flags: [ raid ]
       state: present
-    become_user: root
     loop:
       - {device: /dev/sdc}
       - {device: /dev/sdd}
@@ -494,26 +495,21 @@ cat >> /install/post-disk-5drive.yml << EOF
       - {device: /dev/sdg}
   - name: Configure Software RAID Volume data
     shell: mdadm --create /dev/md/mdoradata --level=0 --raid-devices=3 /dev/sdc1 /dev/sdd1 /dev/sde1
-    become_user: root
   - name: Configure Software RAID Volume archivelog
     shell: mdadm --create /dev/md/mdarch --level=0 --raid-devices=2 /dev/sdf1 /dev/sdg1
-    become_user: root
   - name: Format RAID Volumes
     filesystem:
       fstype: xfs
       dev: "{{ item.raid }}"
-    become_user: root
     loop:
       - {raid: /dev/md/mdoradata}
       - {raid: /dev/md/mdarch}
   - name: Get md127 UUID
     shell: /sbin/blkid /dev/md127 -s UUID -o value "\$1"
-    become_user: root    
     register: md127uuid
   - name: Get md126 UUID
     shell: /sbin/blkid /dev/md126 -s UUID -o value "\$1"
     register: md126uuid
-    become_user: root    
   - name: Add to fstab
     mount:
       path: "{{ item.path }}"
@@ -522,15 +518,12 @@ cat >> /install/post-disk-5drive.yml << EOF
       opts: defaults,nofail
       passno: "2"
       state: mounted
-    become_user: root
     loop:
       - { uuid: "{{ md127uuid.stdout }}", path: /u02/oradata }
       - { uuid: "{{ md126uuid.stdout }}", path: /fra }
   - name: Save RAID Config
     shell: mdadm --detail --scan --verbose >> /etc/mdadm.conf
-    become_user: root
   - name: Verify Directory Permissions for Oracle Install
-    become_user: root
     file:
       path: "{{ item.directory }}"
       state: directory
