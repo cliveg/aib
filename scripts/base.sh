@@ -472,7 +472,7 @@ cat >> /install/rhel-post.yml << EOF
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/runInstaller -silent -waitforcompletion -responseFile /{{ oracle_folder }}/stage/db_install.rsp"
     become_user: oracle
   - name: Execute Inventory Root Command
-    command: "/{{ oracle_folder }}/app/oracle/inventory/orainstRoot.sh"
+    command: "/{{ oracle_folder }}/app/oraInventory/orainstRoot.sh"
     become_user: root
   - name: Execute DB home Root Command
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
