@@ -162,7 +162,7 @@ cat >> /install/rhel-golden.yml << EOF
       regexp: '^#ClientAliveInterval 0'
       line: ClientAliveInterval 60
   - name: Set readline editing to to vi
-    command: "set -o vi"
+    shell: "set -o vi"
     become_user: root    
   - name: set up swap
     vars:
