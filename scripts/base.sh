@@ -153,6 +153,8 @@ cat >> /install/rhel-golden.yml << EOF
     become_user: root
   - name: Keep SSH Session alive longer
     command: "sed -i /etc/ssh/sshd_config -e 's:.ClientAliveInterval 0:ClientAliveInterval 60:'; sed -i /etc/ssh/sshd_config -e 's:.TCPKeepAlive yes:TCPKeepAlive yes:'"
+    args:
+      warn: false    
     become_user: root
   - name: Set readline editing to to vi
     command: "set -o vi"
