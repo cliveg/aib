@@ -151,6 +151,12 @@ cat >> /install/rhel-golden.yml << EOF
   - name: Run Disable Transparent Hugepages script
     shell: ~/disable_trans_hugepages.sh
     become_user: root
+  - name: Keep SSH Session alive longer
+    command: "sed -i /etc/ssh/sshd_config -e 's:.ClientAliveInterval 0:ClientAliveInterval 60:'; sed -i /etc/ssh/sshd_config -e 's:.TCPKeepAlive yes:TCPKeepAlive yes:'"
+    become_user: root
+  - name: Set readline editing to to vi
+    command: "set -o vi"
+    become_user: root    
   - name: set up swap
     vars:
       waagent:
@@ -396,9 +402,62 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: /var/tmp/centrify/CentrifyDC-5.7.0-207-rhel5.x86_64.rpm }            
 EOF
 
+cat >> /install/post.sh << EOF
+#!/bin/bash
 
-cat >> /install/rhel-post.yml << EOF
-- name: Configure Disk
+  menu_option_one() {
+    echo "Configuring Storage"
+    ansible-playbook /install/post-disk-5drive.yml
+  }
+
+  menu_option_two() {
+    echo "Configuring Oracle with SampleDB"
+    ansible-playbook /install/post-orainstall-sampledb.yml
+  }
+
+  press_enter() {
+    echo ""
+    echo -n "     Press Enter to continue "
+    read
+    clear
+  }
+
+  incorrect_selection() {
+    echo "Incorrect selection! Try again."
+  }
+
+  until [ "$selection" = "0" ]; do
+    clear
+    echo "        Server Build Post Steps"
+    echo ""
+    echo "        1  -  Configure Storage (5 Drive)"
+    echo "        2  -  Configure Oracle with SampleDB"
+    echo "        0  -  Exit"
+    echo ""
+    echo -n "  Enter selection: "
+    read selection
+    echo ""
+    case $selection in
+      1 ) clear ; menu_option_one ; press_enter ;;
+      2 ) clear ; menu_option_two ; press_enter ;;
+      0 ) clear ; exit ;;
+      * ) clear ; incorrect_selection ; press_enter ;;
+    esac
+  done
+
+EOF
+
+cat >> /install/post.yml << EOF
+- name: Post configure
+  hosts: localhost
+- name: Setup VM Storage
+  import_playbook: post-disk-5drive.yml
+- name: Install and Configure Oracle 12c EE
+  import_playbook: post-orainstall-sampledb.yml
+EOF
+
+cat >> /install/post-disk-5drive.yml << EOF
+- name: Configure Disk-5
   hosts: localhost
   become: yes
   become_user: root
@@ -455,8 +514,7 @@ cat >> /install/rhel-post.yml << EOF
   - name: Save RAID Config
     shell: mdadm --detail --scan --verbose >> /etc/mdadm.conf
     become_user: root
-    
-  - name: Fix Directory Permissions for Oracle Install
+  - name: Verify Directory Permissions for Oracle Install
     become_user: root
     file:
       path: "{{ item.directory }}"
@@ -467,7 +525,17 @@ cat >> /install/rhel-post.yml << EOF
       group: oinstall
     loop:
       - { directory: '/{{ oracle_folder }}' }
-      - { directory: '/u02' }
+      - { directory: '/u02' }    
+EOF
+
+cat >> /install/post-orainstall-sampledb.yml << EOF
+- name: Install Oracle and create sampledb
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - vars.yml
+  tasks:
   - name: Install Oracle
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/runInstaller -silent -waitforcompletion -responseFile /{{ oracle_folder }}/stage/db_install.rsp"
     become_user: oracle
