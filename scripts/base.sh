@@ -471,7 +471,6 @@ cat >> /install/post-disk-5drive.yml << EOF
   vars_files:
     - vars.yml
   tasks:
-  
   - name: Replace a localhost entry with our own
     lineinfile:
       path: /etc/hosts
@@ -481,6 +480,14 @@ cat >> /install/post-disk-5drive.yml << EOF
       owner: root
       group: root
       mode: '0644'
+  - name: Test if six managed disks present 
+    stat:
+      path: /dev/dm-6
+    register: managed_disks
+  - name: Fail if six managed disks not present
+    fail:
+      msg: "*** 5 Disks Configuration ***"
+    when: managed_disks.stat.exists and managed_disks.stat.isblk  
   - name: Partition Disks
     parted:
       device: "{{ item.device }}"
@@ -535,6 +542,77 @@ cat >> /install/post-disk-5drive.yml << EOF
       - { directory: '/{{ oracle_folder }}' }
       - { directory: '/u02' }    
 EOF
+
+cat >> /install/post-disk-asm.yml << EOF
+- name: Install ASM
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Replace a localhost entry with our own
+    lineinfile:
+      path: /etc/hosts
+      insertafter: EOF
+      line: "127.0.0.1 {{ ansible_hostname }}.enbridge.com"
+      state: present
+      owner: root
+      group: root
+      mode: '0644'
+  - name: Test if six managed disks present 
+    stat:
+      path: /dev/dm-6
+    register: managed_disks
+  - name: Fail if six managed disks not present
+    fail:
+      msg: "*** 5 Disks Configuration ***"
+    when: managed_disks.stat.exists and managed_disks.stat.isblk  
+  - name: Install ASM packages
+    yum:
+      name: "{{ item.pak }}"
+      state: latest
+    become_user: root
+    loop:
+      - { pak: kmod-oracleasm.x86_64 }
+      - { pak: oracleasm-support.x86_64 }
+      - { pak: "https://download.oracle.com/otn_software/asmlib/oracleasmlib-2.0.12-1.el6.x86_64.rpm" } 
+  - name: Create ASM Groups
+    group:
+      name: "{{ item.group }}"
+      gid: "{{ item.gid }}"
+      state: present
+    become_user: root
+    loop:
+      - { group: asmadmin, gid: 54345 }
+      - { group: asmdba, gid: 54346 }
+      - { group: asmoper, gid: 54347 }
+  - name: Create Grid User
+    user:
+      name: grid
+      uid: "3000"
+      groups: "{{ item.group }}"
+      state: present
+      append: yes
+    become_user: root
+    loop:
+      - { group: dba }
+      - { group: asmadmin }
+      - { group: asmdba }
+      - { group: asmoper }
+  - name: Update Oracle User
+    user:
+      name: oracle
+      groups: "{{ item.group }}"
+      state: present
+      append: yes
+    become_user: root
+    loop:
+      - { group: dba }
+      - { group: asmadmin }
+      - { group: asmdba }
+EOF
+
 
 cat >> /install/post-orainstall-sampledb.yml << EOF
 - name: Install Oracle and create sampledb
