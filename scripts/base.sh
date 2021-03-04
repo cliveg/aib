@@ -158,7 +158,7 @@ cat >> /install/rhel-golden.yml << EOF
         ResourceDisk.Filesystem: ext4            # Typically ext3 or ext4
         ResourceDisk.MountPoint: /mnt/resource   #
         ResourceDisk.EnableSwap: y               # Create and use swapfile
-        ResourceDisk.SwapSizeMB: 2048            # Size of the swapfile
+        ResourceDisk.SwapSizeMB: 16384            # Size of the swapfile
     become_user: root
     lineinfile: dest=/etc/waagent.conf line="{{ item.key }}={{ item.value }}"
     with_dict: "{{ waagent }}"
