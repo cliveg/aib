@@ -436,7 +436,7 @@ incorrect_selection() {
   echo "Incorrect selection! Try again."
 }
 
-until [ "$selection" = "0" ]; do
+until [ "\$selection" = "0" ]; do
   clear
   echo "        Server Build Post Steps"
   echo ""
@@ -447,7 +447,7 @@ until [ "$selection" = "0" ]; do
   echo -n "  Enter selection: "
   read selection
   echo ""
-  case $selection in
+  case \$selection in
     1 ) clear ; menu_option_one ; press_enter ;;
     2 ) clear ; menu_option_two ; press_enter ;;
     0 ) clear ; exit ;;
@@ -456,6 +456,7 @@ until [ "$selection" = "0" ]; do
 done
 
 EOF
+chmod +x /install/post.sh
 
 cat >> /install/post.yml << EOF
 - name: Post configure
@@ -651,6 +652,37 @@ cat >> /install/post-orainstall-sampledb.yml << EOF
     become_user: oracle    
   - name: Change oratab
     lineinfile: dest='/etc/oratab' regexp='^ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:N' line='ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:Y'
+    become_user: root
+  - name: Create init.d Oracle Script in /etc/init.d
+    copy:
+      dest: /etc/init.d/oradb
+      mode: 750
+      content: "
+        #!/bin/sh\n
+        # chkconfig: 345 99 10\n
+        # description: Oracle auto start-stop script.\n
+        ORACLE_HOME=/oracle/app/oracle/product/12.1.0.2/dbhome_1/\n
+        ORACLE=oracle\n
+        PATH=${PATH}:$ORACLE_HOME/bin\n
+        export ORACLE_HOME PATH\n
+        case $1 in \n
+        'start')\n
+        runuser -l $ORACLE -c '$ORACLE_HOME/bin/dbstart $ORACLE_HOME &'\n
+        touch /var/lock/subsys/dbora\n
+        ;;\n
+        'stop')\n
+        runuser -l $ORACLE -c '$ORACLE_HOME/bin/dbshut $ORACLE_HOME'\n
+        rm -f /var/lock/subsys/dbora\n
+        ;;\n
+        *)\n
+        echo \"usage: $0 {start|stop}\"\n
+        exit\n
+        ;;\n
+        esac\n
+        exit\n"
+    become_user: root
+  - name: Enable oradb Script to Run at Startup
+    command: 'chkconfig --add oradb'
     become_user: root    
 EOF
 
