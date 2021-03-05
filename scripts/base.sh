@@ -496,6 +496,7 @@ cat >> /install/post-disk-5drive.yml << EOF
     parted:
       device: "{{ item.device }}"
       number: "1"
+      label: gpt
       flags: [ raid ]
       state: present
     loop:
