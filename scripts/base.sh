@@ -661,21 +661,21 @@ cat >> /install/post-orainstall-sampledb.yml << EOF
         #!/bin/sh\n
         # chkconfig: 345 99 10\n
         # description: Oracle auto start-stop script.\n
-        ORACLE_HOME=/oracle/app/oracle/product/12.1.0.2/dbhome_1/\n
+        ORACLE_HOME=/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/\n
         ORACLE=oracle\n
-        PATH=${PATH}:$ORACLE_HOME/bin\n
+        PATH=${PATH}:\$ORACLE_HOME/bin\n
         export ORACLE_HOME PATH\n
         case $1 in \n
         'start')\n
-        runuser -l $ORACLE -c '$ORACLE_HOME/bin/dbstart $ORACLE_HOME &'\n
+        runuser -l \$ORACLE -c '\$ORACLE_HOME/bin/dbstart \$ORACLE_HOME &'\n
         touch /var/lock/subsys/dbora\n
         ;;\n
         'stop')\n
-        runuser -l $ORACLE -c '$ORACLE_HOME/bin/dbshut $ORACLE_HOME'\n
+        runuser -l \$ORACLE -c '\$ORACLE_HOME/bin/dbshut \$ORACLE_HOME'\n
         rm -f /var/lock/subsys/dbora\n
         ;;\n
         *)\n
-        echo \"usage: $0 {start|stop}\"\n
+        echo \"usage: \$0 {start|stop}\"\n
         exit\n
         ;;\n
         esac\n
