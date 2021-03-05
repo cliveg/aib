@@ -161,7 +161,7 @@ cat >> /install/rhel-golden.yml << EOF
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^#ClientAliveInterval 0'
-      line: ClientAliveInterval 60
+      line: ClientAliveInterval 3660
     become_user: root      
   - name: Set readline editing to to vi
     shell: "set -o vi"
