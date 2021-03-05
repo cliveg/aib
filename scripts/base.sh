@@ -702,7 +702,8 @@ curl https://packages.microsoft.com/config/rhel/7/prod.repo | sudo tee /etc/yum.
 sudo mkdir -p /u01/stage
 
 sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(rpm -E '%{rhel}').noarch.rpm
-sudo yum -y install python-pip
+#sudo yum -y install python-pip
+sudo yum -y install python3-pip
 sudo yum -y install ansible
 sudo ansible-playbook rhel-golden.yml
 sudo yum -y install libaio-devel
