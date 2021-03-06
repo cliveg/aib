@@ -707,6 +707,11 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(
 #sudo yum -y install python-pip
 sudo yum -y install python3-pip
 sudo yum -y install ansible
+if grep -q -i "release 8" /etc/redhat-release
+then
+  echo "running RHEL 8.x" > /install/log.log
+  exit
+fi
 sudo ansible-playbook rhel-golden.yml
 sudo yum -y install libaio-devel
 # Start PowerShell
