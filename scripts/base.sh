@@ -366,7 +366,6 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: cifs-utils }
       - { pak: mdadm}
       - { pak: binutils }
-      - { pak: compat-libcap1 }
       - { pak: gcc }
       - { pak: gcc-c++ }
       - { pak: glibc.i686 }
@@ -405,6 +404,7 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
       - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
       - { pak: /u01/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
+      - { pak: "http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/libnl3-3.5.0-1.el8.x86_64.rpm" }
       - { pak: /var/tmp/falcon-sensor-5.43.0-10807.el7.x86_64.rpm }
       - { pak: /var/tmp/managesoft-12.1.0-1.x86_64.rpm }
       - { pak: /var/tmp/NessusAgent-7.7.0-es7.x86_64.rpm }
@@ -413,6 +413,7 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: /var/tmp/centrify/CentrifyDC-curl-5.7.0-207-rhel5.x86_64.rpm }
       - { pak: /var/tmp/centrify/CentrifyDC-5.7.0-207-rhel5.x86_64.rpm }            
 EOF
+#      - { pak: compat-libcap1 }
 
 cat >> /install/post.sh << EOF
 #!/bin/bash
