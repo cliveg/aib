@@ -13,6 +13,7 @@ cat >> /install/rhel-golden.yml << EOF
 - name: Configure Server
   hosts: localhost
   become: yes
+  become_user: root  
   vars_files:
     - vars.yml
   tasks:
@@ -20,7 +21,6 @@ cat >> /install/rhel-golden.yml << EOF
     group:
       name: "{{ item.group }}"
       state: present
-    become_user: root
     loop:
       - { group: oinstall }
       - { group: dba }
@@ -32,7 +32,6 @@ cat >> /install/rhel-golden.yml << EOF
       password: "{{ oraclepass }}"
       state: present
       append: yes
-    become_user: root
     loop:
       - { group: oinstall }
       - { group: dba }
@@ -89,19 +88,16 @@ cat >> /install/rhel-golden.yml << EOF
   - name: Disable SELinux
     selinux:
       state: disabled
-    become_user: root
   - name: Disable Firewall daemon
     service: 
       name: firewalld 
       state: stopped 
       enabled: no
-    become_user: root
   - name: Adjust Kernel Parameters
     sysctl:
       name: "{{ item.key }}"
       value: "{{ item.value }}"
       state: present
-    become_user: root
     loop:
       - { key: fs.file-max, value: 6815744 }
       - { key: kernel.sem, value: 250 32000 100 128 }
@@ -119,7 +115,6 @@ cat >> /install/rhel-golden.yml << EOF
       - { key: net.ipv4.ip_local_port_range, value: 9000 65500 }    
   - name: Add Oracle User Limits
     lineinfile: dest=/etc/security/limits.conf line='oracle {{ item.limit }} {{ item.type}} {{ item.value }}'
-    become_user: root
     loop:
       - { limit: 'soft', type: nofile, value: 4096 }
       - { limit: 'hard', type: nofile, value: 65536 }
@@ -150,22 +145,18 @@ cat >> /install/rhel-golden.yml << EOF
         fi\n"
   - name: Run Disable Transparent Hugepages script
     shell: ~/disable_trans_hugepages.sh
-    become_user: root
   - name: Enable TCPKeepAlive
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^#TCPKeepAlive yes'
       line: TCPKeepAlive yes
-    become_user: root  
   - name: Enable ClientAliveInterval
     lineinfile:
       path: /etc/ssh/sshd_config
       regexp: '^#ClientAliveInterval 0'
       line: ClientAliveInterval 3660
-    become_user: root      
   - name: Set readline editing to to vi
     shell: "set -o vi"
-    become_user: root    
   - name: set up swap
     vars:
       waagent:
@@ -174,7 +165,6 @@ cat >> /install/rhel-golden.yml << EOF
         ResourceDisk.MountPoint: /mnt/resource   #
         ResourceDisk.EnableSwap: y               # Create and use swapfile
         ResourceDisk.SwapSizeMB: 16384            # Size of the swapfile
-    become_user: root
     lineinfile: dest=/etc/waagent.conf line="{{ item.key }}={{ item.value }}"
     with_dict: "{{ waagent }}"
     tags:
@@ -185,16 +175,13 @@ cat >> /install/rhel-golden.yml << EOF
       state: unmounted
     tags:
       - setup
-    become_user: root      
   - name: restart agent
     service:
       name: waagent.service
       state: restarted
-    become_user: root
     tags:
       - setup
   - name: Check Base Directories Just in case
-    become_user: root
     file:
       path: "{{ item.directory }}"
       state: directory
@@ -212,7 +199,6 @@ cat >> /install/rhel-golden.yml << EOF
       - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }    
       
   - name: Download Installation Files
-    become_user: root
     get_url:
       url: "{{ item }}"
       http_agent: Internet Explorer 3.5 for UNIX
@@ -228,14 +214,11 @@ cat >> /install/rhel-golden.yml << EOF
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/LINUX.X64_193000_db_home.zip
     args:
       warn: false
-    become_user: root
   - name: Download-Software-Patch
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     args:
       warn: false
-    become_user: root
   - name: Check Base Directories
-    become_user: root
     file:
       path: "{{ item.directory }}"
       state: directory
@@ -251,7 +234,6 @@ cat >> /install/rhel-golden.yml << EOF
       - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
       - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }    
   - name: Extract Oracle Software
-    become_user: root  
     unarchive:
       src: "{{ item }}"
       dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
@@ -263,9 +245,7 @@ cat >> /install/rhel-golden.yml << EOF
     file:
       path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/OPatch
       state: absent
-    become_user: root
   - name: Extract Oracle Software Updates
-    become_user: root  
     unarchive:
       src: "{{ item }}"
       dest: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1"
@@ -326,7 +306,6 @@ cat >> /install/rhel-golden.yml << EOF
       path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/cv/admin/cvu_config
       regexp: '^#CV_ASSUME_DISTID=OEL5'
       line: CV_ASSUME_DISTID=OEL5
-    become_user: root      
   - name: Create Response File for dbca
     copy:
       dest: /{{ oracle_folder }}/stage/dbca.rsp
@@ -346,7 +325,6 @@ cat >> /install/rhel-golden.yml << EOF
         memoryPercentage=80\n
         totalMemory=0\n"
   - name: Extract Management Software
-    become_user: root  
     unarchive:
       src: "{{ item }}"
       dest: "/"
@@ -357,13 +335,11 @@ cat >> /install/rhel-golden.yml << EOF
     file:
       path: /etc/NetworkManager/conf.d/90-dns-none.conf
       state: absent
-    become_user: root      
   - name: Install packages
     yum:
       name: "{{ item.pak }}"
       state: latest
       disable_gpg_check: true
-    become_user: root
     loop:
       - { pak: facter }
       - { pak: net-snmp }
@@ -589,7 +565,6 @@ cat >> /install/post-disk-asm.yml << EOF
       name: "{{ item.pak }}"
       state: latest
       disable_gpg_check: true
-    become_user: root
     loop:
       - { pak: kmod-oracleasm.x86_64 }
       - { pak: "https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracleasm-support-2.1.11-2.el7.x86_64.rpm" }
@@ -599,7 +574,6 @@ cat >> /install/post-disk-asm.yml << EOF
       name: "{{ item.group }}"
       gid: "{{ item.gid }}"
       state: present
-    become_user: root
     loop:
       - { group: asmadmin, gid: 54345 }
       - { group: asmdba, gid: 54346 }
@@ -611,7 +585,6 @@ cat >> /install/post-disk-asm.yml << EOF
       groups: "{{ item.group }}"
       state: present
       append: yes
-    become_user: root
     loop:
       - { group: dba }
       - { group: asmadmin }
@@ -623,7 +596,6 @@ cat >> /install/post-disk-asm.yml << EOF
       groups: "{{ item.group }}"
       state: present
       append: yes
-    become_user: root
     loop:
       - { group: dba }
       - { group: asmadmin }
@@ -644,10 +616,8 @@ cat >> /install/post-orainstall-sampledb.yml << EOF
     become_user: oracle
   - name: Execute Inventory Root Command
     command: "/{{ oracle_folder }}/app/oraInventory/orainstRoot.sh"
-    become_user: root
   - name: Execute DB home Root Command
     command: "/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/root.sh"
-    become_user: root
   - name: Create Listener from netca
     command: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/bin/netca -silent -responseFile /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/assistants/netca/netca.rsp'
     become_user: oracle    
@@ -665,7 +635,6 @@ cat >> /install/post-orainstall-sampledb.yml << EOF
     become_user: oracle    
   - name: Change oratab
     lineinfile: dest='/etc/oratab' regexp='^ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:N' line='ora1:/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1:Y'
-    become_user: root
   - name: Create init.d Oracle Script in /etc/init.d
     copy:
       dest: /etc/init.d/oradb
@@ -693,10 +662,8 @@ cat >> /install/post-orainstall-sampledb.yml << EOF
         ;;\n
         esac\n
         exit\n"
-    become_user: root
   - name: Enable oradb Script to Run at Startup
     command: 'chkconfig --add oradb'
-    become_user: root    
 EOF
 
 # Register the Microsoft RedHat repository
@@ -722,6 +689,7 @@ sudo yum -y install ansible
 #  echo "running RHEL 8.x" > /install/log.log
 #  exit
 #fi
+exit
 sudo ansible-playbook rhel-golden.yml
 sudo yum -y install libaio-devel
 # Start PowerShell
