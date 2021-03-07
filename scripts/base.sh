@@ -497,9 +497,12 @@ cat >> /install/post-disk-5drive.yml << EOF
   - name: Output disks
     debug:
       var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list
-  - name: Fail when less than six managed disks not present
+  - name: Output disks count
+    debug:
+      var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length
+  - name: Fail when less than required managed disks not present
     fail:
-      msg: "*** Less than 5 Data Disks Configuration ***"
+      msg: "*** Less than required Data Disks Configuration ***"
     when: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length != 7
   - name: Partition Disks
     parted:
@@ -574,19 +577,13 @@ cat >> /install/post-disk-asm.yml << EOF
       owner: root
       group: root
       mode: '0644'
-  - name: Test if six managed disks present 
-    stat:
-      path: /dev/dm-6
-    register: managed_disks
-  - name: Test if six managed disks present 
-    stat:
-      path: /dev/sdg
-    register: managed_disksrhel8
-
-  - name: Fail if six managed disks not present
+  - name: Output disks
+    debug:
+      var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list
+  - name: Fail when less than six managed disks not present
     fail:
-      msg: "*** 5 Disks Configuration ***"
-    when: managed_disks.stat.exists or managed_disksrhel8.stat.exists
+      msg: "*** Less than 5 Data Disks Configuration ***"
+    when: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length != 7
   - name: Install ASM packages
     yum:
       name: "{{ item.pak }}"
