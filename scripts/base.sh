@@ -321,6 +321,12 @@ cat >> /install/rhel-golden.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/dump\n
 #        oracle.install.db.config.asm.diskGroup=\n
 #        oracle.install.db.config.asm.ASMSNMPPassword=\n"
+  - name: Enable ClientAliveInterval
+    lineinfile:
+      path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/admin/cvu_config
+      regexp: '^#CV_ASSUME_DISTID'
+      line: CV_ASSUME_DISTID
+    become_user: root      
   - name: Create Response File for dbca
     copy:
       dest: /{{ oracle_folder }}/stage/dbca.rsp
@@ -573,10 +579,15 @@ cat >> /install/post-disk-asm.yml << EOF
     stat:
       path: /dev/dm-6
     register: managed_disks
+  - name: Test if six managed disks present 
+    stat:
+      path: /dev/sdg
+    register: managed_disksrhel8
+
   - name: Fail if six managed disks not present
     fail:
       msg: "*** 5 Disks Configuration ***"
-    when: managed_disks.stat.exists and managed_disks.stat.isblk  
+    when: managed_disks.stat.exists or managed_disksrhel8.stat.exists
   - name: Install ASM packages
     yum:
       name: "{{ item.pak }}"
