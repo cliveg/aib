@@ -356,6 +356,7 @@ cat >> /install/rhel-golden.yml << EOF
     yum:
       name: "{{ item.pak }}"
       state: latest
+      disable_gpg_check: true
     become_user: root
     loop:
       - { pak: facter }
@@ -580,6 +581,7 @@ cat >> /install/post-disk-asm.yml << EOF
     yum:
       name: "{{ item.pak }}"
       state: latest
+      disable_gpg_check: true
     become_user: root
     loop:
       - { pak: kmod-oracleasm.x86_64 }
