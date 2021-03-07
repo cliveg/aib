@@ -731,3 +731,4 @@ sudo yum -y install libaio-devel
 # pwsh
 
 # install-module nx
+sudo yum update -y
