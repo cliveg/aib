@@ -321,11 +321,11 @@ cat >> /install/rhel-golden.yml << EOF
         oracle.install.db.config.starterdb.fileSystemStorage.recoveryLocation=/dump\n
 #        oracle.install.db.config.asm.diskGroup=\n
 #        oracle.install.db.config.asm.ASMSNMPPassword=\n"
-  - name: Enable ClientAliveInterval
+  - name: Make Oraacle compatibile with RHEL 8
     lineinfile:
-      path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/admin/cvu_config
-      regexp: '^#CV_ASSUME_DISTID'
-      line: CV_ASSUME_DISTID
+      path: /{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1/cv/admin/cvu_config
+      regexp: '^#CV_ASSUME_DISTID=OEL5'
+      line: CV_ASSUME_DISTID=OEL5
     become_user: root      
   - name: Create Response File for dbca
     copy:
