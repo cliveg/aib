@@ -405,7 +405,7 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
       - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
       - { pak: /u01/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
-      - { pak: "http://mirror.centos.org/centos/8/BaseOS/x86_64/os/Packages/libnl3-3.5.0-1.el8.x86_64.rpm" }
+      - { pak: "http://mirror.centos.org/centos/7/os/x86_64/Packages/libnl-1.1.4-3.el7.x86_64.rpm" }
       - { pak: /var/tmp/falcon-sensor-5.43.0-10807.el7.x86_64.rpm }
       - { pak: /var/tmp/managesoft-12.1.0-1.x86_64.rpm }
       - { pak: /var/tmp/NessusAgent-7.7.0-es7.x86_64.rpm }
@@ -710,11 +710,11 @@ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-$(
 #sudo yum -y install python-pip
 sudo yum -y install python3-pip
 sudo yum -y install ansible
-if grep -q -i "release 8" /etc/redhat-release
-then
-  echo "running RHEL 8.x" > /install/log.log
-  exit
-fi
+#if grep -q -i "release 8" /etc/redhat-release
+#then
+#  echo "running RHEL 8.x" > /install/log.log
+#  exit
+#fi
 sudo ansible-playbook rhel-golden.yml
 sudo yum -y install libaio-devel
 # Start PowerShell
