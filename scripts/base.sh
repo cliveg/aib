@@ -343,16 +343,16 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: glibc-devel.i686 }
       - { pak: glibc-devel }
       - { pak: ksh }
-      - { pak: libaio.i686 }
       - { pak: libaio }
-      - { pak: libaio-devel.i686 }
+      - { pak: libaio.i686 }
       - { pak: libaio-devel }
+      - { pak: libaio-devel.i686 }
       - { pak: libgcc.i686 }
       - { pak: libgcc }
       - { pak: libstdc++.i686 }
       - { pak: libstdc++ }
-      - { pak: libstdc++-devel.i686 }
       - { pak: libstdc++-devel }
+      - { pak: libstdc++-devel.i686 }
       - { pak: libXi.i686 }
       - { pak: libXi }
       - { pak: libXtst.i686 }
