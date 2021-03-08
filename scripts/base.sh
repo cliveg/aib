@@ -334,8 +334,8 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: crash }
       - { pak: dstat }
       - { pak: cifs-utils }
-      - { pak: mdadm}
-      - { pak: binutils }
+#      - { pak: mdadm}
+#      - { pak: binutils }
       - { pak: gcc }
       - { pak: gcc-c++ }
       - { pak: glibc.i686 }
@@ -367,12 +367,12 @@ cat >> /install/rhel-golden.yml << EOF
       - { pak: libstdc++-devel }
       - { pak: nfs-utils }
       - { pak: targetcli }
-      - { pak: cloud-utils-growpart }
-      - { pak: gdisk }
+#      - { pak: cloud-utils-growpart }
+#      - { pak: gdisk }
       - { pak: "http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libcap1-1.10-7.el7.x86_64.rpm" }
       - { pak: "http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm" }
-      - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
-      - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
+#      - { pak: /u01/stage/compat-libstdc++-33-3.2.3-72.el7.x86_64.rpm }
+#      - { pak: /u01/stage/compat-libcap1-1.10-7.el7.x86_64.rpm }
       - { pak: /u01/stage/oracle-database-preinstall-19c-1.0-1.el7.x86_64.rpm }
       - { pak: "http://mirror.centos.org/centos/7/os/x86_64/Packages/libnl-1.1.4-3.el7.x86_64.rpm" }
       - { pak: /var/tmp/falcon-sensor-5.43.0-10807.el7.x86_64.rpm }
@@ -463,9 +463,9 @@ cat >> /install/post-disk-5drive.yml << EOF
   - name: Output disks count
     debug:
       var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length
-  - name: Fail when less than required managed disks not present
+  - name: Fail when required managed disks are not present
     fail:
-      msg: "*** Less than required Data Disks Configuration ***"
+      msg: "*** Less than required Data Disks in Configuration ***"
     when: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length != 7
   - name: Partition Disks
     parted:
@@ -543,7 +543,7 @@ cat >> /install/post-disk-asm.yml << EOF
   - name: Output disks
     debug:
       var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list
-  - name: Fail when less than six managed disks not present
+  - name: Fail when required managed disks are not present
     fail:
       msg: "*** Less than 5 Data Disks Configuration ***"
     when: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list | length != 7
