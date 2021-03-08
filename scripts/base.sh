@@ -677,7 +677,7 @@ sudo yum -y install ansible
 #  exit
 #fi
 #exit
-sudo ansible-playbook rhel-golden.yml
+#sudo ansible-playbook rhel-golden.yml
 # sudo yum -y install libaio-devel
 # Start PowerShell
 # pwsh
