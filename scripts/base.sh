@@ -676,7 +676,7 @@ sudo yum -y install ansible
 #  echo "running RHEL 8.x" > /install/log.log
 #  exit
 #fi
-exit
+#exit
 sudo ansible-playbook rhel-golden.yml
 # sudo yum -y install libaio-devel
 # Start PowerShell
