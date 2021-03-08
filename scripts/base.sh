@@ -20,14 +20,16 @@ cat >> /install/rhel-golden.yml << EOF
   - name: Create Groups
     group:
       name: "{{ item.group }}"
+      gid: "{{ item.gid }}"
       state: present
     loop:
-      - { group: oinstall }
-      - { group: dba }
-      - { group: oper }
+      - { group: oinstall, gid: 54323 }
+      - { group: dba, gid: 54322  }
+      - { group: oper, gid: 54423 }
   - name: Create Oracle User
     user:
       name: oracle
+      uid: "54321"
       groups: "{{ item.group }}"
       password: "{{ oraclepass }}"
       state: present
@@ -676,7 +678,7 @@ sudo yum -y install ansible
 #fi
 exit
 sudo ansible-playbook rhel-golden.yml
-sudo yum -y install libaio-devel
+# sudo yum -y install libaio-devel
 # Start PowerShell
 # pwsh
 
