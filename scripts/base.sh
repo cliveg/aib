@@ -434,10 +434,20 @@ chmod +x /install/post.sh
 cat >> /install/post.yml << EOF
 - name: Post configure
   hosts: localhost
-- name: Setup VM Storage
-  import_playbook: post-disk-5drive.yml
-- name: Install and Configure Oracle 12c EE
-  import_playbook: post-orainstall-sampledb.yml
+  become: yes
+  become_user: root
+  vars_files:
+    - vars.yml
+  tasks:
+  - name: Replace a localhost entry with our own
+    lineinfile:
+      path: /etc/hosts
+      insertafter: EOF
+      line: "127.0.0.1 {{ ansible_hostname }}.{{ domain_suffix }}"
+      state: present
+      owner: root
+      group: root
+      mode: '0644'
 EOF
 
 cat >> /install/post-disk-5drive.yml << EOF
@@ -448,15 +458,6 @@ cat >> /install/post-disk-5drive.yml << EOF
   vars_files:
     - vars.yml
   tasks:
-  - name: Replace a localhost entry with our own
-    lineinfile:
-      path: /etc/hosts
-      insertafter: EOF
-      line: "127.0.0.1 {{ ansible_hostname }}.contoso.com"
-      state: present
-      owner: root
-      group: root
-      mode: '0644'
   - name: Output disks
     debug:
       var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list
@@ -531,15 +532,6 @@ cat >> /install/post-disk-asm.yml << EOF
   vars_files:
     - vars.yml
   tasks:
-  - name: Replace a localhost entry with our own
-    lineinfile:
-      path: /etc/hosts
-      insertafter: EOF
-      line: "127.0.0.1 {{ ansible_hostname }}.contoso.com"
-      state: present
-      owner: root
-      group: root
-      mode: '0644'
   - name: Output disks
     debug:
       var: hostvars[inventory_hostname].ansible_devices.keys() | map('regex_search', 'sd.*') | select('string') | list
