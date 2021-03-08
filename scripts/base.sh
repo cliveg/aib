@@ -218,21 +218,6 @@ cat >> /install/rhel-golden.yml << EOF
     shell: wget -P /{{ oracle_folder }}/stage https://{{ blob_account }}.blob.core.windows.net/pub/oracle/19c/patches/p31326362_190000_Linux-x86-64.zip
     args:
       warn: false
-  - name: Check Base Directories
-    file:
-      path: "{{ item.directory }}"
-      state: directory
-      mode: '0755'
-      owner: oracle
-      group: oinstall
-    loop:
-      - { directory: '/{{ oracle_folder }}' }
-      - { directory: '/{{ oracle_folder }}/app' }
-      - { directory: '/{{ oracle_folder }}/app/oraInventory' }
-      - { directory: '/{{ oracle_folder }}/app/oracle' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0' }
-      - { directory: '/{{ oracle_folder }}/app/oracle/product/19.0.0/dbhome_1' }    
   - name: Extract Oracle Software
     unarchive:
       src: "{{ item }}"
