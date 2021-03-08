@@ -448,6 +448,10 @@ cat >> /install/post.yml << EOF
       owner: root
       group: root
       mode: '0644'
+  - name: dnssearch
+    command: "nmcli con mod \"System eth0\" ipv4.dns-search \"{{ dns_search }}\""
+  - name: restart network manager
+    command: "systemctl restart NetworkManager"
 EOF
 
 cat >> /install/post-disk-5drive.yml << EOF
