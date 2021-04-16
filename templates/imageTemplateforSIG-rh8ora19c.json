@@ -1,0 +1,72 @@
+{
+    "type": "Microsoft.VirtualMachineImages",
+    "apiVersion": "2019-05-01-preview",
+    "location": "WestUS2",  
+    "dependsOn": [],
+    "tags": {
+        "imagebuilderTemplate": "AzureImageBuilderSIG",
+        "userIdentity": "enabled"
+            },
+        "identity": {
+            "type": "UserAssigned",
+                    "userAssignedIdentities": {
+                    "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-imageBuilder-usw2/providers/Microsoft.ManagedIdentity/userAssignedIdentities/mi-azureimagebuilder": {}                        
+                }
+                },
+    
+    "properties": {
+
+        "buildTimeoutInMinutes" : 200,
+
+        "vmProfile": 
+            {
+            "vmSize": "Standard_E4ds_v4",
+            "vnetConfig": {
+                "subnetId": "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-imageBuilder-usw2/providers/Microsoft.Network/virtualNetworks/vnet-aibdev-usw2/subnets/snet-aib-dev"
+                },
+            "osDiskSizeGB": 0
+            },
+        
+        "source": {
+            "type": "PlatformImage",
+                "publisher": "redhat",
+                "offer": "RHEL",
+                "sku": "8-LVM",
+                "version": "latest"
+        },
+
+        "customize": [
+            {
+                "type": "Shell",
+                "name": "RunBase",
+                "inline": [
+                    "sudo mkdir /install",
+                    "sudo wget -O /install/base.sh https://raw.githubusercontent.com/cliveg/aib/main/scripts/base.sh",
+                    "sudo wget -O /install/vars.yml https://raw.githubusercontent.com/cliveg/aib/main/ansible/vars.yml",
+                    "sudo sed -i -e \"s/<blob_account>/<BLOBNAME>/g\" /install/vars.yml",
+                    "sudo sed -i -e \"s/<domain_suffix>/contoso.com/g\" /install/vars.yml",
+                    "sudo sed -i -e \"s/<dns_search>/contoso.com,bu1.contoso.com/g\" /install/vars.yml",                    
+                    "sudo sed -i -e \"s/<oracle_folder>/u01/g\" /install/vars.yml",
+                    "sudo sed -i -e \"s/<Complex Password>/Some_plain_pa$sw0rd/g\" /install/vars.yml",
+                    "sudo sed -i -e \"s/<Insert Salt Here>/some_plain_salt/g\" /install/vars.yml",
+                    "sudo chmod -R 755 /install/base.sh",
+                    "sudo sh -c 'cd /install; ./base.sh'",
+                    "sudo sh -c 'cd /install; sudo ansible-playbook rhel-golden.yml'"
+                    ]
+            }
+        ],
+        "distribute": 
+        [
+            {   
+                "type": "ManagedImage",
+                "imageId": "/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/rg-imageBuilder-usw2/providers/Microsoft.Compute/images/dev-ib-imagedef-rhelpayg8-ora19c",
+                "runOutputName": "aibLinuxSIGrhelpayg8-ora19c",
+                "location": "WestUS2",
+                "artifactTags": {
+                    "source": "azureVmImageBuilder",
+                    "baseosimg": "rhelpayg8lvm"
+                }
+            }            
+        ]
+    }
+}
